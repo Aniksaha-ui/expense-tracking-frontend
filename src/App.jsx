@@ -9,8 +9,12 @@ import { AppLayout } from './layout/AppLayout'
 
 const Dashboard = lazy(() => import('./features/Dashboard/page/DashboardPage'))
 const AccountsPage = lazy(() => import('./features/Accounts/page/AccountsPage'))
+const AccountBalancesReportPage = lazy(() => import('./features/Reports/page/AccountBalancesReportPage'))
 const CategoriesPage = lazy(() => import('./features/Categories/page/CategoriesPage'))
+const CategoryBreakdownReportPage = lazy(() => import('./features/Reports/page/CategoryBreakdownReportPage'))
 const RecurringExpensesPage = lazy(() => import('./features/RecurringExpenses/page/RecurringExpensesPage'))
+const ReportsPage = lazy(() => import('./features/Reports/page/ReportsPage'))
+const SummaryReportPage = lazy(() => import('./features/Reports/page/SummaryReportPage'))
 const TransfersPage = lazy(() => import('./features/Transfers/page/TransfersPage'))
 const TransactionsPage = lazy(() => import('./features/Transactions/page/TransactionsPage'))
 const MenuItemFormPage = lazy(() => import('./features/MenuItems/page/MenuItemFormPage'))
@@ -104,6 +108,38 @@ function AppRoutes() {
           element={
             <Suspense fallback={<FullPageLoader message="Loading recurring expenses..." />}>
               <RecurringExpensesPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.reports}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading reports..." />}>
+              <ReportsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.reportSummary}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading summary report..." />}>
+              <SummaryReportPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.reportAccountBalances}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading account balances report..." />}>
+              <AccountBalancesReportPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.reportCategoryBreakdown}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading category breakdown report..." />}>
+              <CategoryBreakdownReportPage />
             </Suspense>
           }
         />

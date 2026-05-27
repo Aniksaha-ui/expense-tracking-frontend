@@ -1,0 +1,34 @@
+export const REPORT_ACCOUNT_TYPE_OPTIONS = [
+  { label: 'All Accounts', value: 'all' },
+  { label: 'Cash', value: 'CASH' },
+  { label: 'Bank', value: 'BANK' },
+  { label: 'Card', value: 'CARD' },
+  { label: 'Mobile Banking', value: 'MOBILE_BANKING' },
+]
+
+export const REPORT_CATEGORY_TYPE_OPTIONS = [
+  { label: 'All Categories', value: 'all' },
+  { label: 'Expense', value: 'EXPENSE' },
+  { label: 'Income', value: 'INCOME' },
+]
+
+export const REPORTS_PAGE_COPY = {
+  accountBalances: {
+    searchPlaceholder: 'Search by account name, institution, type, status, or account ID',
+    subtitle: 'Review current balances across cash, bank, card, and mobile banking accounts in one place.',
+    title: 'Account Balances Report',
+  },
+  categoryBreakdown: {
+    searchPlaceholder: 'Search by category name, type, or amount',
+    subtitle: 'See which categories drive the most expense volume across the selected date range.',
+    title: 'Category Breakdown Report',
+  },
+  hub: {
+    subtitle: 'Choose a report to inspect balances, movement, and category performance from one place.',
+    title: 'Reports',
+  },
+  summary: {
+    subtitle: 'Get a quick snapshot of balances and transaction movement for the selected reporting range.',
+    title: 'Summary Report',
+  },
+}

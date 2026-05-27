@@ -57,75 +57,71 @@ const fallbackPrimaryMenuItems = [
   },
 ];
 
-const fallbackReportMenuItems = [
-  {
-    id: "frontend-account-balance-report",
-    title: "Account Balance",
-    path: APP_ROUTES.accountBalance,
-    icon: "ReportManagementIcon",
-    order: 1000,
-    children: [],
-  },
-  {
-    id: "frontend-account-history-report",
-    title: "Account History",
-    path: APP_ROUTES.accountHistory,
-    icon: "ReportManagementIcon",
-    order: 1001,
-    children: [],
-  },
-  {
-    id: "frontend-financial-report",
-    title: "Financial Report",
-    path: APP_ROUTES.financialReport,
-    icon: "ReportManagementIcon",
-    order: 1002,
-    children: [],
-  },
-  {
-    id: "frontend-customer-value-report",
-    title: "Customer Value Report",
-    path: APP_ROUTES.customerValueReport,
-    icon: "ReportManagementIcon",
-    order: 1003,
-    children: [],
-  },
-  {
-    id: "frontend-overall-sales-report",
-    title: "Overall Sales",
-    path: APP_ROUTES.overallSales,
-    icon: "ReportManagementIcon",
-    order: 1004,
-    children: [],
-  },
-  {
-    id: "frontend-route-wise-sales-report",
-    title: "Route Wise Sales",
-    path: APP_ROUTES.routeWiseSales,
-    icon: "ReportManagementIcon",
-    order: 1005,
-    children: [],
-  },
-  {
-    id: "frontend-ticket-status-report",
-    title: "Ticket Status Analysis",
-    path: APP_ROUTES.ticketStatusReport,
-    icon: "ReportManagementIcon",
-    order: 1006,
-    children: [],
-  },
-  {
-    id: "frontend-high-cancellation-packages-report",
-    title: "High Cancellation Packages",
-    path: APP_ROUTES.highCancellationPackages,
-    icon: "ReportManagementIcon",
-    order: 1007,
-    children: [],
-  },
-];
+const fallbackReportMenuItem = {
+  id: "frontend-reports-menu",
+  title: "Reports",
+  path: APP_ROUTES.reports,
+  icon: "ReportManagementIcon",
+  order: 1000,
+  children: [],
+};
 
-const findReportMenuItem = (items = []) =>
-  items.find((item) => /report/i.test(item.title ?? "") || item.icon === "ReportManagementIcon");
+const reportChildRoutes = new Set([
+  APP_ROUTES.reportSummary,
+  APP_ROUTES.reportAccountBalances,
+  APP_ROUTES.reportCategoryBreakdown,
+]);
+
+const findReportMenuItem = (items = []) => {
+  for (const item of items) {
+    if (/report/i.test(item.title ?? "") || item.icon === "ReportManagementIcon") {
+      return item;
+    }
+
+    const nestedMatch = findReportMenuItem(item.children ?? []);
+
+    if (nestedMatch) {
+      return nestedMatch;
+    }
+  }
+
+  return null;
+};
+
+const removeStandaloneReportChildren = (items = [], reportMenuItemId) =>
+  items.reduce((nextItems, item) => {
+    const supportedRoute = getSupportedRoute(item.path);
+    const keepCurrentItem = item.id === reportMenuItemId || !reportChildRoutes.has(supportedRoute);
+
+    if (!keepCurrentItem) {
+      return nextItems;
+    }
+
+    nextItems.push({
+      ...item,
+      children: removeStandaloneReportChildren(item.children ?? [], reportMenuItemId),
+    });
+
+    return nextItems;
+  }, []);
+
+const applyReportMenuRoute = (items = [], reportMenuItemId) =>
+  items.map((item) => {
+    if (item.id !== reportMenuItemId) {
+      return {
+        ...item,
+        children: applyReportMenuRoute(item.children ?? [], reportMenuItemId),
+      };
+    }
+
+    return {
+      ...item,
+      children: [],
+      icon: "ReportManagementIcon",
+      path: APP_ROUTES.reports,
+      title: "Reports",
+    };
+  });
 
 const menuContainsRoute = (items = [], route) =>
   items.some((item) => getSupportedRoute(item.path) === route || menuContainsRoute(item.children ?? [], route));
@@ -136,44 +132,21 @@ const withFallbackReportMenuItems = ({ mainMenuItems = [], bottomMenuItems = [] 
   );
   const nextMainMenuItems = sortMenuItems([...mainMenuItems, ...missingPrimaryMenuItems]);
   const nextBottomMenuItems = sortMenuItems(bottomMenuItems);
-  const missingReportItems = fallbackReportMenuItems.filter(
-    (item) => !menuContainsRoute([...nextMainMenuItems, ...nextBottomMenuItems], item.path),
-  );
-
-  if (!missingReportItems.length) {
-    return {
-      mainMenuItems: nextMainMenuItems,
-      bottomMenuItems: nextBottomMenuItems,
-    };
-  }
-
   const reportMenuItem = findReportMenuItem(nextMainMenuItems) ?? findReportMenuItem(nextBottomMenuItems);
 
   if (!reportMenuItem) {
     return {
       mainMenuItems: nextMainMenuItems,
-      bottomMenuItems: sortMenuItems([...nextBottomMenuItems, ...missingReportItems]),
+      bottomMenuItems: sortMenuItems([...nextBottomMenuItems, fallbackReportMenuItem]),
     };
   }
 
-  const addMissingReports = (items = []) =>
-    items.map((item) => {
-      if (item.id !== reportMenuItem.id) {
-        return {
-          ...item,
-          children: addMissingReports(item.children ?? []),
-        };
-      }
-
-      return {
-        ...item,
-        children: sortMenuItems([...(item.children ?? []), ...missingReportItems]),
-      };
-    });
+  const cleanedMainMenuItems = removeStandaloneReportChildren(nextMainMenuItems, reportMenuItem.id);
+  const cleanedBottomMenuItems = removeStandaloneReportChildren(nextBottomMenuItems, reportMenuItem.id);
 
   return {
-    mainMenuItems: sortMenuItems(addMissingReports(nextMainMenuItems)),
-    bottomMenuItems: sortMenuItems(addMissingReports(nextBottomMenuItems)),
+    mainMenuItems: sortMenuItems(applyReportMenuRoute(cleanedMainMenuItems, reportMenuItem.id)),
+    bottomMenuItems: sortMenuItems(applyReportMenuRoute(cleanedBottomMenuItems, reportMenuItem.id)),
   };
 };
 
@@ -333,57 +306,40 @@ export const getSupportedRoute = (path) => {
   }
 
   if (
-    path === "/admin/customerValueReport" ||
-    path === "/customerValueReport" ||
-    path === "admin/customerValueReport" ||
-    path === "customerValueReport" ||
-    path === "/admin/customerValue"
+    path === "/reports" ||
+    path === "reports"
   ) {
-    return APP_ROUTES.customerValueReport;
+    return APP_ROUTES.reports;
   }
 
   if (
+    path === "/reports/summary" ||
+    path === "reports/summary" ||
     path === "/admin/financialReport" ||
     path === "/financialReport" ||
     path === "admin/financialReport" ||
     path === "financialReport" ||
     path === "/admin/financial_report"
   ) {
-    return APP_ROUTES.financialReport;
+    return APP_ROUTES.reportSummary;
   }
 
   if (
+    path === "/reports/account-balances" ||
+    path === "reports/account-balances" ||
     path === "/admin/account/balance" ||
     path === "/account/balance" ||
     path === "admin/account/balance" ||
     path === "account/balance"
   ) {
-    return APP_ROUTES.accountBalance;
+    return APP_ROUTES.reportAccountBalances;
   }
 
   if (
-    path === "/admin/account/history" ||
-    path === "/account/history" ||
-    path === "admin/account/history" ||
-    path === "account/history"
+    path === "/reports/category-breakdown" ||
+    path === "reports/category-breakdown"
   ) {
-    return APP_ROUTES.accountHistory;
-  }
-
-  if (path === "/admin/account/overall-sales" || path === "/account/overall-sales") {
-    return APP_ROUTES.overallSales;
-  }
-
-  if (path === "/admin/account/route-wise-sales" || path === "/account/route-wise-sales") {
-    return APP_ROUTES.routeWiseSales;
-  }
-
-  if (path === "/admin/account/ticket-status-report" || path === "/account/ticket-status-report") {
-    return APP_ROUTES.ticketStatusReport;
-  }
-
-  if (path === "/admin/high-cancellation-packages" || path === "/high-cancellation-packages") {
-    return APP_ROUTES.highCancellationPackages;
+    return APP_ROUTES.reportCategoryBreakdown;
   }
 
   if (path === "/admin/refunds" || path === "/admin/refund" || path === "/refunds") {
