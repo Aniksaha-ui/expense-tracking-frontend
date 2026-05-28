@@ -46,6 +46,45 @@ const entryEndpointMap = {
   INCOME: API_URLS.transactions.income,
 }
 
+const transactionUpdateCandidates = (transactionId) => [
+  { endpoint: API_URLS.transactions.update(transactionId), method: 'PUT' },
+  { endpoint: API_URLS.transactions.update(transactionId), method: 'PATCH' },
+  { endpoint: `/transactions/update/${transactionId}`, method: 'PUT' },
+  { endpoint: `/transactions/update/${transactionId}`, method: 'PATCH' },
+  { endpoint: `/transactions/update/${transactionId}`, method: 'POST' },
+]
+
+const isRetryableUpdateError = (error) => {
+  const message = String(error?.message ?? '').trim().toLowerCase()
+
+  return (
+    message.includes('could not be found') ||
+    message.includes('not supported for route') ||
+    message.includes('supported methods')
+  )
+}
+
+const updateTransactionRequest = async (transactionId, payload) => {
+  let lastError = null
+
+  for (const candidate of transactionUpdateCandidates(transactionId)) {
+    try {
+      return await apiRequest(candidate.endpoint, {
+        body: JSON.stringify(payload),
+        method: candidate.method,
+      })
+    } catch (error) {
+      lastError = error
+
+      if (!isRetryableUpdateError(error)) {
+        throw error
+      }
+    }
+  }
+
+  throw lastError ?? new Error('Unable to update transaction.')
+}
+
 const toNumber = (value) => Number(value) || 0
 
 const toDateKey = (value) => {
@@ -297,3 +336,9 @@ export const createTransactionEntry = async (entryType, payload) => {
     'Unable to create transaction.',
   )
 }
+
+export const updateTransactionEntry = async (transactionId, payload) =>
+  assertSuccessfulExecution(
+    await updateTransactionRequest(transactionId, payload),
+    'Unable to update transaction.',
+  )

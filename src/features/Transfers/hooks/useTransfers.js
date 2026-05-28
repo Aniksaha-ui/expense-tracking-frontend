@@ -8,6 +8,7 @@ import {
   fetchTransfersCollection,
   filterTransfers,
   paginateTransfers,
+  updateTransferEntry,
 } from '../service/transfersService'
 
 const emptyPagination = {
@@ -21,6 +22,11 @@ const emptyPagination = {
 const successMessages = {
   TRANSFER: 'Transfer completed successfully.',
   WITHDRAWAL: 'Withdrawal completed successfully.',
+}
+
+const updateSuccessMessages = {
+  TRANSFER: 'Transfer updated successfully.',
+  WITHDRAWAL: 'Withdrawal updated successfully.',
 }
 
 export default function useTransfers() {
@@ -102,6 +108,19 @@ export default function useTransfers() {
     }
   }
 
+  const updateItem = async (id, entryType, payload) => {
+    const normalizedEntryType = String(entryType ?? '').trim().toUpperCase()
+    setIsMutating(true)
+
+    try {
+      await updateTransferEntry(id, payload)
+      toast.success(updateSuccessMessages[normalizedEntryType] || 'Transfer updated successfully.')
+      await loadTransfers()
+    } finally {
+      setIsMutating(false)
+    }
+  }
+
   return {
     accountFilter,
     accounts,
@@ -124,5 +143,6 @@ export default function useTransfers() {
     setSearch,
     setToDate,
     toDate,
+    updateItem,
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import {
+  buildTransferFormState,
   buildTransferPayload,
   isWithdrawalEntry,
   TRANSFER_ENTRY_OPTIONS,
@@ -16,10 +17,18 @@ const toOptionLabel = (account) =>
 export function TransferEntryModal({
   accounts,
   defaultEntryType = 'TRANSFER',
+  editingItem = null,
   isMutating,
   onClose,
   onSubmit,
 }) {
+  const defaultValues = useMemo(
+    () =>
+      editingItem
+        ? buildTransferFormState(editingItem)
+        : buildTransferFormState({ entry_type: defaultEntryType }),
+    [defaultEntryType, editingItem],
+  )
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -27,20 +36,14 @@ export function TransferEntryModal({
     setValue,
     watch,
   } = useForm({
-    defaultValues: {
-      amount: '',
-      entry_type: defaultEntryType,
-      from_account_id: '',
-      note: '',
-      to_account_id: '',
-      transfer_date: '',
-    },
+    defaultValues,
     mode: 'onBlur',
   })
 
   const entryType = watch('entry_type') || defaultEntryType
   const fromAccountId = watch('from_account_id')
   const toAccountId = watch('to_account_id')
+  const isEditing = Boolean(editingItem)
   const activeOption =
     TRANSFER_ENTRY_OPTIONS.find((option) => option.value === entryType) ??
     TRANSFER_ENTRY_OPTIONS[0]
@@ -95,8 +98,8 @@ export function TransferEntryModal({
       >
         <header className="crud-modal__header">
           <div>
-            <p className="crud-modal__eyebrow">Create transfer</p>
-            <h2>{activeOption.label}</h2>
+            <p className="crud-modal__eyebrow">{isEditing ? 'Edit transfer' : 'Create transfer'}</p>
+            <h2>{isEditing ? `${activeOption.label} Details` : activeOption.label}</h2>
           </div>
           <button type="button" onClick={onClose}>
             Close
@@ -119,6 +122,7 @@ export function TransferEntryModal({
                         ? 'border-blue-500 bg-blue-500/10 text-white'
                         : 'border-[#332d30] bg-[#171314] text-[#c5d9f7]'
                     }`}
+                    disabled={isEditing}
                     onClick={() => setValue('entry_type', option.value)}
                   >
                     <span className="block text-sm font-semibold">{option.label}</span>
@@ -214,7 +218,11 @@ export function TransferEntryModal({
             className="crud-button crud-button--primary"
             disabled={isSubmitting || isMutating || isMissingAccounts || isBlockedByWithdrawalAccounts}
           >
-            {isSubmitting || isMutating ? 'Saving...' : `Create ${activeOption.label}`}
+            {isSubmitting || isMutating
+              ? 'Saving...'
+              : isEditing
+                ? `Update ${activeOption.label}`
+                : `Create ${activeOption.label}`}
           </button>
         </footer>
       </form>

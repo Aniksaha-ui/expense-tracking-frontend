@@ -17,6 +17,45 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 
+const transferUpdateCandidates = (transferId) => [
+  { endpoint: API_URLS.transfers.update(transferId), method: 'PUT' },
+  { endpoint: API_URLS.transfers.update(transferId), method: 'PATCH' },
+  { endpoint: `/transfers/update/${transferId}`, method: 'PUT' },
+  { endpoint: `/transfers/update/${transferId}`, method: 'PATCH' },
+  { endpoint: `/transfers/update/${transferId}`, method: 'POST' },
+]
+
+const isRetryableUpdateError = (error) => {
+  const message = String(error?.message ?? '').trim().toLowerCase()
+
+  return (
+    message.includes('could not be found') ||
+    message.includes('not supported for route') ||
+    message.includes('supported methods')
+  )
+}
+
+const updateTransferRequest = async (transferId, payload) => {
+  let lastError = null
+
+  for (const candidate of transferUpdateCandidates(transferId)) {
+    try {
+      return await apiRequest(candidate.endpoint, {
+        body: JSON.stringify(payload),
+        method: candidate.method,
+      })
+    } catch (error) {
+      lastError = error
+
+      if (!isRetryableUpdateError(error)) {
+        throw error
+      }
+    }
+  }
+
+  throw lastError ?? new Error('Unable to update transfer.')
+}
+
 const formatDateLabel = (value) => {
   if (!value) {
     return 'Not available'
@@ -207,3 +246,9 @@ export const createTransferEntry = async (entryType, payload) => {
     'Unable to create transfer.',
   )
 }
+
+export const updateTransferEntry = async (transferId, payload) =>
+  assertSuccessfulExecution(
+    await updateTransferRequest(transferId, payload),
+    'Unable to update transfer.',
+  )

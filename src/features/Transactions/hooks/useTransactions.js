@@ -8,6 +8,7 @@ import {
   fetchTransactionsCollection,
   filterTransactions,
   paginateTransactions,
+  updateTransactionEntry,
 } from '../service/transactionsService'
 
 const emptyPagination = {
@@ -22,6 +23,12 @@ const successMessages = {
   DEPOSIT: 'Deposit transaction created successfully.',
   EXPENSE: 'Expense transaction created successfully.',
   INCOME: 'Income transaction created successfully.',
+}
+
+const updateSuccessMessages = {
+  DEPOSIT: 'Deposit transaction updated successfully.',
+  EXPENSE: 'Expense transaction updated successfully.',
+  INCOME: 'Income transaction updated successfully.',
 }
 
 export default function useTransactions() {
@@ -111,6 +118,21 @@ export default function useTransactions() {
     }
   }
 
+  const updateItem = async (id, entryType, payload) => {
+    const normalizedEntryType = String(entryType ?? '').trim().toUpperCase()
+    setIsMutating(true)
+
+    try {
+      await updateTransactionEntry(id, payload)
+      toast.success(
+        updateSuccessMessages[normalizedEntryType] || 'Transaction updated successfully.',
+      )
+      await loadTransactions()
+    } finally {
+      setIsMutating(false)
+    }
+  }
+
   return {
     accountFilter,
     accounts,
@@ -136,5 +158,6 @@ export default function useTransactions() {
     setTypeFilter,
     toDate,
     typeFilter,
+    updateItem,
   }
 }

@@ -27,6 +27,44 @@ export const TRANSFERS_PAGE_COPY = {
 export const isWithdrawalEntry = (entryType) =>
   String(entryType ?? '').trim().toUpperCase() === 'WITHDRAWAL'
 
+const toDateInputValue = (value) => {
+  const rawValue = String(value ?? '').trim()
+
+  if (!rawValue) {
+    return ''
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(rawValue)) {
+    return rawValue.slice(0, 10)
+  }
+
+  const date = new Date(rawValue)
+
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+export const buildTransferFormState = (item = {}) => ({
+  amount: String(item.amount ?? ''),
+  entry_type:
+    item.is_withdrawal === undefined
+      ? String(item.entry_type ?? 'TRANSFER').trim().toUpperCase()
+      : item.is_withdrawal
+        ? 'WITHDRAWAL'
+        : 'TRANSFER',
+  from_account_id: String(item.from_account_id ?? item.fromAccountId ?? ''),
+  note: item.note ?? '',
+  to_account_id: String(item.to_account_id ?? item.toAccountId ?? ''),
+  transfer_date: toDateInputValue(item.transfer_date),
+})
+
 export const buildTransferPayload = (values) => {
   const note = String(values.note ?? '').trim()
   const transferDate = String(values.transfer_date ?? '').trim()

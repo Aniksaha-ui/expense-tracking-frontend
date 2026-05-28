@@ -82,6 +82,7 @@ export const API_URLS = {
   transfers: {
     create: "/transfers",
     list: "/transfers",
+    update: (transferId) => `/transfers/${transferId}`,
     withdrawToCash: "/transfers/withdraw-to-cash",
   },
   transactions: {
@@ -89,6 +90,7 @@ export const API_URLS = {
     expense: "/transactions/expense",
     income: "/transactions/income",
     list: "/transactions",
+    update: (transactionId) => `/transactions/${transactionId}`,
   },
   visaApplications: {
     assign: "/admin/visa/assign",

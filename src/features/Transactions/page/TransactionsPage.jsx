@@ -1,6 +1,7 @@
 import {
   ArrowDownToLine,
   ArrowUpToLine,
+  Pencil,
   PiggyBank,
   ReceiptText,
   RefreshCcw,
@@ -14,6 +15,7 @@ import { TransactionEntryModal } from '../component/TransactionEntryModal.jsx'
 import { TransactionsOverview } from '../component/TransactionsOverview.jsx'
 import { transactionColumns } from '../component/column.jsx'
 import {
+  isEditableTransactionType,
   TRANSACTION_TYPE_TABS,
   TRANSACTIONS_PAGE_COPY,
 } from '../constants/transactions.constants'
@@ -41,6 +43,7 @@ export default function TransactionsPage() {
   const apiState = useTransactions()
   const toast = useToast()
   const [entryType, setEntryType] = useState(null)
+  const [editingItem, setEditingItem] = useState(null)
 
   const resultLabel = useMemo(() => {
     if (!apiState.pagination.total && !apiState.items.length) {
@@ -58,12 +61,32 @@ export default function TransactionsPage() {
     apiState.toDate ||
     apiState.search
 
+  const closeModal = () => {
+    setEditingItem(null)
+    setEntryType(null)
+  }
+
+  const openCreateModal = (nextEntryType) => {
+    setEditingItem(null)
+    setEntryType(nextEntryType)
+  }
+
+  const openEditModal = (item) => {
+    setEditingItem(item)
+    setEntryType(item.type)
+  }
+
   const handleCreate = async (nextEntryType, payload) => {
     try {
-      await apiState.createItem(nextEntryType, payload)
-      setEntryType(null)
+      if (editingItem) {
+        await apiState.updateItem(editingItem.id, nextEntryType, payload)
+      } else {
+        await apiState.createItem(nextEntryType, payload)
+      }
+
+      closeModal()
     } catch (error) {
-      toast.error(error.message || 'Unable to create transaction.')
+      toast.error(error.message || 'Unable to save transaction.')
     }
   }
 
@@ -205,7 +228,7 @@ export default function TransactionsPage() {
                       type="button"
                       className="routes-new-button"
                       disabled={disabled}
-                      onClick={() => setEntryType(action.value)}
+                      onClick={() => openCreateModal(action.value)}
                     >
                       <Icon size={15} />
                       {action.label}
@@ -218,7 +241,7 @@ export default function TransactionsPage() {
                     key={action.value}
                     className={disabled ? 'opacity-60' : ''}
                     disabled={disabled}
-                    onClick={() => setEntryType(action.value)}
+                    onClick={() => openCreateModal(action.value)}
                   >
                     <Icon size={14} />
                     {action.label}
@@ -238,7 +261,32 @@ export default function TransactionsPage() {
             apiState.setSearch(value)
           }}
           pagination={apiState.pagination}
+          renderRowActions={(item) => {
+            const isEditable = isEditableTransactionType(item.type)
+
+            return (
+              <div className="routes-table__actions">
+                <button
+                  type="button"
+                  className={`routes-icon-button ${
+                    !isEditable || apiState.isMutating ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  aria-label="Edit transaction"
+                  disabled={!isEditable || apiState.isMutating}
+                  title={
+                    isEditable
+                      ? 'Edit transaction'
+                      : 'Only manual expense, income, and deposit entries can be edited here.'
+                  }
+                  onClick={() => openEditModal(item)}
+                >
+                  <Pencil size={15} />
+                </button>
+              </div>
+            )
+          }}
           resultLabel={resultLabel}
+          rowActionsWidth="72px"
           search={apiState.search}
           searchPlaceholder={TRANSACTIONS_PAGE_COPY.searchPlaceholder}
         />
@@ -248,8 +296,9 @@ export default function TransactionsPage() {
             accounts={apiState.accounts}
             categories={apiState.categories}
             defaultEntryType={entryType}
+            editingItem={editingItem}
             isMutating={apiState.isMutating}
-            onClose={() => setEntryType(null)}
+            onClose={closeModal}
             onSubmit={handleCreate}
           />
         ) : null}

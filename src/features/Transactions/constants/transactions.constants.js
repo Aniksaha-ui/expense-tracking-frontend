@@ -40,6 +40,44 @@ export const shouldShowTransactionCategory = (entryType) =>
 export const isTransactionCategoryRequired = (entryType) =>
   String(entryType ?? '').trim().toUpperCase() === 'EXPENSE'
 
+const editableTransactionTypes = new Set(['DEPOSIT', 'EXPENSE', 'INCOME'])
+
+const toDateInputValue = (value) => {
+  const rawValue = String(value ?? '').trim()
+
+  if (!rawValue) {
+    return ''
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(rawValue)) {
+    return rawValue.slice(0, 10)
+  }
+
+  const date = new Date(rawValue)
+
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+export const isEditableTransactionType = (entryType) =>
+  editableTransactionTypes.has(String(entryType ?? '').trim().toUpperCase())
+
+export const buildTransactionFormState = (item = {}) => ({
+  account_id: String(item.account_id ?? ''),
+  amount: String(item.amount ?? ''),
+  category_id: String(item.category_id ?? ''),
+  entry_type: String(item.type ?? 'EXPENSE').trim().toUpperCase(),
+  note: item.note ?? '',
+  transaction_date: toDateInputValue(item.transaction_date),
+})
+
 export const buildTransactionPayload = (values, entryType) => {
   const normalizedEntryType = String(entryType ?? '').trim().toUpperCase()
   const note = String(values.note ?? '').trim()

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import {
+  buildTransactionFormState,
   buildTransactionPayload,
   isTransactionCategoryRequired,
   shouldShowTransactionCategory,
@@ -18,10 +19,18 @@ export function TransactionEntryModal({
   accounts,
   categories,
   defaultEntryType = 'EXPENSE',
+  editingItem = null,
   isMutating,
   onClose,
   onSubmit,
 }) {
+  const defaultValues = useMemo(
+    () =>
+      editingItem
+        ? buildTransactionFormState(editingItem)
+        : buildTransactionFormState({ type: defaultEntryType }),
+    [defaultEntryType, editingItem],
+  )
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -30,19 +39,13 @@ export function TransactionEntryModal({
     setValue,
     watch,
   } = useForm({
-    defaultValues: {
-      account_id: '',
-      amount: '',
-      category_id: '',
-      entry_type: defaultEntryType,
-      note: '',
-      transaction_date: '',
-    },
+    defaultValues,
     mode: 'onBlur',
   })
 
   const entryType = watch('entry_type') || defaultEntryType
   const selectedCategoryId = watch('category_id')
+  const isEditing = Boolean(editingItem)
   const activeOption =
     TRANSACTION_ENTRY_OPTIONS.find((option) => option.value === entryType) ??
     TRANSACTION_ENTRY_OPTIONS[0]
@@ -87,8 +90,8 @@ export function TransactionEntryModal({
       >
         <header className="crud-modal__header">
           <div>
-            <p className="crud-modal__eyebrow">Create transaction</p>
-            <h2>{activeOption.label} Transaction</h2>
+            <p className="crud-modal__eyebrow">{isEditing ? 'Edit transaction' : 'Create transaction'}</p>
+            <h2>{isEditing ? `${activeOption.label} Details` : `${activeOption.label} Transaction`}</h2>
           </div>
           <button type="button" onClick={onClose}>
             Close
@@ -111,6 +114,7 @@ export function TransactionEntryModal({
                         ? 'border-blue-500 bg-blue-500/10 text-white'
                         : 'border-[#332d30] bg-[#171314] text-[#c5d9f7]'
                     }`}
+                    disabled={isEditing}
                     onClick={() => setValue('entry_type', option.value)}
                   >
                     <span className="block text-sm font-semibold">{option.label}</span>
@@ -212,7 +216,11 @@ export function TransactionEntryModal({
             className="crud-button crud-button--primary"
             disabled={isSubmitting || isMutating || isMissingAccounts || isBlockedByCategories}
           >
-            {isSubmitting || isMutating ? 'Saving...' : `Create ${activeOption.label}`}
+            {isSubmitting || isMutating
+              ? 'Saving...'
+              : isEditing
+                ? `Update ${activeOption.label}`
+                : `Create ${activeOption.label}`}
           </button>
         </footer>
       </form>

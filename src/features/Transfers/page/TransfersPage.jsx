@@ -1,4 +1,4 @@
-import { ArrowLeftRight, RefreshCcw, Wallet } from 'lucide-react'
+import { ArrowLeftRight, Pencil, RefreshCcw, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useToast } from '../../../components/common/Toaster'
 import AdminDataTable, { AdminTableButton } from '../../../components/ui/AdminDataTable'
@@ -25,6 +25,7 @@ export default function TransfersPage() {
   const apiState = useTransfers()
   const toast = useToast()
   const [entryType, setEntryType] = useState(null)
+  const [editingItem, setEditingItem] = useState(null)
 
   const resultLabel = useMemo(() => {
     if (!apiState.pagination.total && !apiState.items.length) {
@@ -37,12 +38,32 @@ export default function TransfersPage() {
   const hasFiltersApplied =
     apiState.flowFilter !== 'all' || apiState.accountFilter !== 'all' || apiState.fromDate || apiState.toDate || apiState.search
 
+  const closeModal = () => {
+    setEditingItem(null)
+    setEntryType(null)
+  }
+
+  const openCreateModal = (nextEntryType) => {
+    setEditingItem(null)
+    setEntryType(nextEntryType)
+  }
+
+  const openEditModal = (item) => {
+    setEditingItem(item)
+    setEntryType(item.is_withdrawal ? 'WITHDRAWAL' : 'TRANSFER')
+  }
+
   const handleCreate = async (nextEntryType, payload) => {
     try {
-      await apiState.createItem(nextEntryType, payload)
-      setEntryType(null)
+      if (editingItem) {
+        await apiState.updateItem(editingItem.id, nextEntryType, payload)
+      } else {
+        await apiState.createItem(nextEntryType, payload)
+      }
+
+      closeModal()
     } catch (error) {
-      toast.error(error.message || 'Unable to create transfer.')
+      toast.error(error.message || 'Unable to save transfer.')
     }
   }
 
@@ -165,7 +186,7 @@ export default function TransfersPage() {
                       type="button"
                       className="routes-new-button"
                       disabled={disabled}
-                      onClick={() => setEntryType(action.value)}
+                      onClick={() => openCreateModal(action.value)}
                     >
                       <Icon size={15} />
                       {action.label}
@@ -178,7 +199,7 @@ export default function TransfersPage() {
                     key={action.value}
                     className={disabled ? 'opacity-60' : ''}
                     disabled={disabled}
-                    onClick={() => setEntryType(action.value)}
+                    onClick={() => openCreateModal(action.value)}
                   >
                     <Icon size={14} />
                     {action.label}
@@ -198,7 +219,21 @@ export default function TransfersPage() {
             apiState.setSearch(value)
           }}
           pagination={apiState.pagination}
+          renderRowActions={(item) => (
+            <div className="routes-table__actions">
+              <button
+                type="button"
+                className={`routes-icon-button ${apiState.isMutating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                aria-label="Edit transfer"
+                disabled={apiState.isMutating}
+                onClick={() => openEditModal(item)}
+              >
+                <Pencil size={15} />
+              </button>
+            </div>
+          )}
           resultLabel={resultLabel}
+          rowActionsWidth="72px"
           search={apiState.search}
           searchPlaceholder={TRANSFERS_PAGE_COPY.searchPlaceholder}
         />
@@ -207,8 +242,9 @@ export default function TransfersPage() {
           <TransferEntryModal
             accounts={apiState.accounts}
             defaultEntryType={entryType}
+            editingItem={editingItem}
             isMutating={apiState.isMutating}
-            onClose={() => setEntryType(null)}
+            onClose={closeModal}
             onSubmit={handleCreate}
           />
         ) : null}
