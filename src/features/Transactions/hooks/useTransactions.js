@@ -6,7 +6,6 @@ import {
   emptyTransactionMetrics,
   fetchTransactionDependencies,
   fetchTransactionsCollection,
-  filterTransactions,
   paginateTransactions,
   updateTransactionEntry,
 } from '../service/transactionsService'
@@ -47,30 +46,54 @@ export default function useTransactions() {
   const [isMutating, setIsMutating] = useState(false)
   const [error, setError] = useState('')
 
+  const loadDependencies = useCallback(async () => {
+    try {
+      const dependencies = await fetchTransactionDependencies()
+
+      setAccounts(dependencies.accounts)
+      setCategories(dependencies.categories)
+    } catch (loadError) {
+      const message = loadError.message || 'Unable to load transaction dependencies.'
+
+      setAccounts([])
+      setCategories([])
+      toast.error(message)
+    }
+  }, [toast])
+
   const loadTransactions = useCallback(async () => {
     setIsLoading(true)
     setError('')
 
     try {
-      const [transactions, dependencies] = await Promise.all([
-        fetchTransactionsCollection(),
-        fetchTransactionDependencies(),
-      ])
+      const transactions = await fetchTransactionsCollection({
+        accountFilter,
+        categoryFilter,
+        fromDate,
+        search,
+        toDate,
+        typeFilter,
+      })
 
       setAllItems(transactions)
-      setAccounts(dependencies.accounts)
-      setCategories(dependencies.categories)
     } catch (loadError) {
       const message = loadError.message || 'Unable to load transactions.'
-      setAccounts([])
+
       setAllItems([])
-      setCategories([])
       setError(message)
       toast.error(message)
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [accountFilter, categoryFilter, fromDate, search, toDate, toast, typeFilter])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadDependencies()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [loadDependencies])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -80,22 +103,7 @@ export default function useTransactions() {
     return () => window.clearTimeout(timeoutId)
   }, [loadTransactions])
 
-  const filteredItems = useMemo(
-    () =>
-      filterTransactions(allItems, {
-        accountFilter,
-        categoryFilter,
-        fromDate,
-        search,
-        toDate,
-        typeFilter,
-      }),
-    [accountFilter, allItems, categoryFilter, fromDate, search, toDate, typeFilter],
-  )
-  const paginatedState = useMemo(
-    () => paginateTransactions(filteredItems, page),
-    [filteredItems, page],
-  )
+  const paginatedState = useMemo(() => paginateTransactions(allItems, page), [allItems, page])
   const metrics = useMemo(() => buildTransactionMetrics(allItems), [allItems])
 
   useEffect(() => {
@@ -112,7 +120,7 @@ export default function useTransactions() {
       await createTransactionEntry(normalizedEntryType, payload)
       toast.success(successMessages[normalizedEntryType] || 'Transaction created successfully.')
       setPage(1)
-      await loadTransactions()
+      await Promise.all([loadTransactions(), loadDependencies()])
     } finally {
       setIsMutating(false)
     }
@@ -127,7 +135,7 @@ export default function useTransactions() {
       toast.success(
         updateSuccessMessages[normalizedEntryType] || 'Transaction updated successfully.',
       )
-      await loadTransactions()
+      await Promise.all([loadTransactions(), loadDependencies()])
     } finally {
       setIsMutating(false)
     }

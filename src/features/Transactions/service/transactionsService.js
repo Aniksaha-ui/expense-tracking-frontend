@@ -1,6 +1,6 @@
 import { API_URLS } from '../../../constants/apiUrls'
 import { apiRequest } from '../../../services/apiClient'
-import { assertSuccessfulExecution, unwrapResponseData } from '../../../services/resourceApi'
+import { unwrapResponseData } from '../../../services/resourceApi'
 import { fetchAccountsCollection } from '../../Accounts/service/accountsService'
 import { fetchCategoriesCollection } from '../../Categories/service/categoriesService'
 
@@ -224,8 +224,47 @@ export const emptyTransactionMetrics = {
   totalCountLabel: '0',
 }
 
-export const fetchTransactionsCollection = async () => {
-  const payload = await apiRequest(API_URLS.transactions.list)
+const buildTransactionsQueryPath = ({
+  accountFilter = 'all',
+  categoryFilter = 'all',
+  fromDate = '',
+  search = '',
+  toDate = '',
+  typeFilter = 'all',
+} = {}) => {
+  const params = new URLSearchParams()
+
+  if (accountFilter !== 'all') {
+    params.set('account_id', accountFilter)
+  }
+
+  if (categoryFilter !== 'all') {
+    params.set('category_id', categoryFilter)
+  }
+
+  if (fromDate) {
+    params.set('from_date', fromDate)
+  }
+
+  if (search) {
+    params.set('search', search)
+  }
+
+  if (toDate) {
+    params.set('to_date', toDate)
+  }
+
+  if (typeFilter !== 'all') {
+    params.set('type', typeFilter)
+  }
+
+  const query = params.toString()
+
+  return query ? `${API_URLS.transactions.list}?${query}` : API_URLS.transactions.list
+}
+
+export const fetchTransactionsCollection = async (filters = {}) => {
+  const payload = await apiRequest(buildTransactionsQueryPath(filters))
   const data = unwrapResponseData(payload, 'Unable to load transactions.')
   const items = Array.isArray(data) ? data : []
 
@@ -239,40 +278,6 @@ export const fetchTransactionDependencies = async () => {
   ])
 
   return { accounts, categories }
-}
-
-export const filterTransactions = (
-  items = [],
-  {
-    accountFilter = 'all',
-    categoryFilter = 'all',
-    fromDate = '',
-    search = '',
-    toDate = '',
-    typeFilter = 'all',
-  } = {},
-) => {
-  const normalizedSearch = String(search ?? '').trim().toLowerCase()
-
-  return items.filter((item) => {
-    const matchesSearch = !normalizedSearch || item.searchText.includes(normalizedSearch)
-    const matchesType = typeFilter === 'all' || item.type === typeFilter
-    const matchesAccount =
-      accountFilter === 'all' || String(item.account_id) === String(accountFilter)
-    const matchesCategory =
-      categoryFilter === 'all' || String(item.category_id) === String(categoryFilter)
-    const matchesFromDate = !fromDate || (item.transactionDateKey && item.transactionDateKey >= fromDate)
-    const matchesToDate = !toDate || (item.transactionDateKey && item.transactionDateKey <= toDate)
-
-    return (
-      matchesSearch &&
-      matchesType &&
-      matchesAccount &&
-      matchesCategory &&
-      matchesFromDate &&
-      matchesToDate
-    )
-  })
 }
 
 export const paginateTransactions = (items = [], page = 1) => {
