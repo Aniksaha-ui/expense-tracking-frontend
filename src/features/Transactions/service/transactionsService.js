@@ -1,6 +1,6 @@
 import { API_URLS } from '../../../constants/apiUrls'
 import { apiRequest } from '../../../services/apiClient'
-import { unwrapResponseData } from '../../../services/resourceApi'
+import { assertSuccessfulExecution, unwrapResponseData } from '../../../services/resourceApi'
 import { fetchAccountsCollection } from '../../Accounts/service/accountsService'
 import { fetchCategoriesCollection } from '../../Categories/service/categoriesService'
 
