@@ -1227,6 +1227,7 @@
   inset: 0;
   z-index: 80;
   display: flex;
+  min-height: 100dvh;
   align-items: center;
   justify-content: center;
   padding: 24px;
@@ -1243,7 +1244,8 @@
   position: relative;
   z-index: 1;
   display: flex;
-  max-height: calc(100vh - 48px);
+  min-height: 0;
+  max-height: calc(100dvh - 48px);
   flex-direction: column;
   width: min(680px, 100%);
   overflow: hidden;
@@ -1298,9 +1300,12 @@
 
 .crud-modal__body {
   display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 20px;
 }
 
@@ -1351,9 +1356,11 @@
 
 .crud-modal__footer {
   display: flex;
+  flex-shrink: 0;
   justify-content: flex-end;
   gap: 10px;
   border-top: 1px solid #2d282b;
+  background: #171314;
   padding: 16px 20px;
 }
 
