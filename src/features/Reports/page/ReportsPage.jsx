@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, PieChart, Wallet } from 'lucide-react'
+import { ArrowRight, BarChart3, CalendarDays, PieChart, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { APP_ROUTES } from '../../../constants/routes'
 import { REPORTS_PAGE_COPY } from '../constants/reports.constants'
@@ -21,6 +21,12 @@ const reportDirectoryItems = [
     icon: PieChart,
     path: APP_ROUTES.reportCategoryBreakdown,
     title: 'Category Breakdown',
+  },
+  {
+    description: 'Review each day alongside the categories that generated expense spend during that reporting window.',
+    icon: CalendarDays,
+    path: APP_ROUTES.reportDaywiseExpenses,
+    title: 'Daywise Expenses',
   },
 ]
 

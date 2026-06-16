@@ -122,3 +122,67 @@ export const categoryBreakdownColumns = [
     width: '18%',
   },
 ]
+
+export const daywiseExpenseColumns = [
+  {
+    accessor: 'serial',
+    id: 'serial',
+    label: 'SL',
+    width: '76px',
+  },
+  {
+    id: 'expense_date',
+    label: 'Date',
+    render: (item) => (
+      <div className="space-y-1">
+        <p className="font-semibold text-white">{item.expenseDateLabel}</p>
+        <p className="text-xs text-[#7d8ca5]">{item.rankLabel}</p>
+      </div>
+    ),
+    width: '18%',
+  },
+  {
+    id: 'category',
+    label: 'Category',
+    render: (item) => (
+      <div className="space-y-1">
+        <p className="font-semibold text-white">{item.categoryName}</p>
+        <p className="text-xs text-[#7d8ca5]">Category ID: {item.categoryIdLabel}</p>
+      </div>
+    ),
+    width: '24%',
+  },
+  {
+    id: 'type',
+    label: 'Type',
+    render: (item) => (
+      <span
+        className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${item.categoryTypeToneClassName}`}
+      >
+        {item.categoryTypeLabel}
+      </span>
+    ),
+    width: '14%',
+  },
+  {
+    align: 'right',
+    id: 'transaction_count',
+    label: 'Transactions',
+    render: (item) => <span className="text-sm text-[#dbe7fb]">{item.transactionCountLabel}</span>,
+    width: '12%',
+  },
+  {
+    align: 'right',
+    id: 'total_amount',
+    label: 'Total Amount',
+    render: (item) => <span className="text-sm font-semibold text-white">{item.totalAmountLabel}</span>,
+    width: '16%',
+  },
+  {
+    align: 'right',
+    id: 'share',
+    label: 'Share',
+    render: (item) => <span className="text-sm text-[#dbe7fb]">{item.shareLabel}</span>,
+    width: '12%',
+  },
+]

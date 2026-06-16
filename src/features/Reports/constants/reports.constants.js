@@ -23,6 +23,11 @@ export const REPORTS_PAGE_COPY = {
     subtitle: 'See which categories drive the most expense volume across the selected date range.',
     title: 'Category Breakdown Report',
   },
+  daywiseExpenses: {
+    searchPlaceholder: 'Search by day, category, type, amount, or transaction count',
+    subtitle: 'Track expense totals day by day and see which categories contributed to each reporting date.',
+    title: 'Daywise Expense Report',
+  },
   hub: {
     subtitle: 'Choose a report to inspect balances, movement, and category performance from one place.',
     title: 'Reports',

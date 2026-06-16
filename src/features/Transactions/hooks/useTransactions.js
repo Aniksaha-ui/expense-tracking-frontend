@@ -10,6 +10,24 @@ import {
   updateTransactionEntry,
 } from '../service/transactionsService'
 
+const toDateInputValue = (date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+const createDefaultDateRange = () => {
+  const today = new Date()
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+
+  return {
+    fromDate: toDateInputValue(firstDayOfMonth),
+    toDate: toDateInputValue(today),
+  }
+}
+
 const emptyPagination = {
   currentPage: 1,
   from: 0,
@@ -31,6 +49,7 @@ const updateSuccessMessages = {
 }
 
 export default function useTransactions() {
+  const defaultDateRange = useMemo(() => createDefaultDateRange(), [])
   const toast = useToast()
   const [accounts, setAccounts] = useState([])
   const [allItems, setAllItems] = useState([])
@@ -40,8 +59,8 @@ export default function useTransactions() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [accountFilter, setAccountFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
+  const [fromDate, setFromDate] = useState(defaultDateRange.fromDate)
+  const [toDate, setToDate] = useState(defaultDateRange.toDate)
   const [isLoading, setIsLoading] = useState(true)
   const [isMutating, setIsMutating] = useState(false)
   const [error, setError] = useState('')
@@ -147,6 +166,7 @@ export default function useTransactions() {
     categories,
     categoryFilter,
     createItem,
+    defaultDateRange,
     error,
     fromDate,
     isLoading,

@@ -23,11 +23,13 @@ const buildSummaryMetricItems = (report) => [
 export default function SummaryReportPage() {
   const apiState = useSummaryReport()
 
-  const hasFiltersApplied = apiState.fromDate || apiState.toDate
+  const hasFiltersApplied =
+    apiState.fromDate !== apiState.defaultDateRange.fromDate ||
+    apiState.toDate !== apiState.defaultDateRange.toDate
 
   const clearFilters = () => {
-    apiState.setFromDate('')
-    apiState.setToDate('')
+    apiState.setFromDate(apiState.defaultDateRange.fromDate)
+    apiState.setToDate(apiState.defaultDateRange.toDate)
   }
 
   return (

@@ -180,6 +180,44 @@ const normalizeCategoryBreakdown = (item = {}, index, totalSpend) => {
   }
 }
 
+const normalizeDaywiseExpense = (item = {}, index, totalSpend) => {
+  const totalAmount = toNumber(item.total_amount)
+  const normalizedType = String(item.category_type ?? 'EXPENSE')
+    .trim()
+    .toUpperCase()
+  const transactionCount = toNumber(item.transaction_count)
+  const share = totalSpend > 0 ? (totalAmount / totalSpend) * 100 : 0
+
+  return {
+    categoryIdLabel: item.category_id ?? 'N/A',
+    categoryName: item.category_name ?? 'Unknown category',
+    categoryType: normalizedType,
+    categoryTypeLabel:
+      normalizedType === 'INCOME' ? 'Income' : normalizedType === 'EXPENSE' ? 'Expense' : normalizedType,
+    categoryTypeToneClassName:
+      categoryTypeToneClassNames[normalizedType] ?? 'border-blue-500/20 bg-blue-500/10 text-blue-100',
+    expenseDate: item.expense_date ?? '',
+    expenseDateLabel: formatDateLabel(item.expense_date),
+    rankLabel: `Row #${index + 1}`,
+    searchText: [
+      item.expense_date,
+      item.category_id,
+      item.category_name,
+      normalizedType,
+      item.total_amount,
+      item.transaction_count,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+    shareLabel: `${percentFormatter.format(share)}%`,
+    totalAmountLabel: formatCurrencyLabel(totalAmount),
+    totalAmountValue: totalAmount,
+    transactionCount,
+    transactionCountLabel: countFormatter.format(transactionCount),
+  }
+}
+
 const sortAccountBalances = (items = []) =>
   [...items].sort((firstItem, secondItem) => {
     if (firstItem.type !== secondItem.type) {
@@ -191,6 +229,19 @@ const sortAccountBalances = (items = []) =>
 
 const sortCategoryBreakdown = (items = []) =>
   [...items].sort((firstItem, secondItem) => secondItem.totalAmountValue - firstItem.totalAmountValue)
+
+const sortDaywiseExpenses = (items = []) =>
+  [...items].sort((firstItem, secondItem) => {
+    if (firstItem.expenseDate !== secondItem.expenseDate) {
+      return secondItem.expenseDate.localeCompare(firstItem.expenseDate)
+    }
+
+    if (firstItem.totalAmountValue !== secondItem.totalAmountValue) {
+      return secondItem.totalAmountValue - firstItem.totalAmountValue
+    }
+
+    return firstItem.categoryName.localeCompare(secondItem.categoryName)
+  })
 
 export const emptySummaryReport = normalizeSummaryReport({})
 
@@ -206,6 +257,13 @@ export const emptyCategoryBreakdownMetrics = {
   topShareLabel: '0.0%',
   totalCategoriesLabel: '0',
   totalSpendLabel: 'BDT 0.00',
+}
+
+export const emptyDaywiseExpenseMetrics = {
+  totalCategoriesLabel: '0',
+  totalDaysLabel: '0',
+  totalSpendLabel: 'BDT 0.00',
+  totalTransactionsLabel: '0',
 }
 
 export const reportEmptyPagination = {
@@ -245,6 +303,17 @@ export const fetchCategoryBreakdownReport = async (filters = {}) => {
   return sortCategoryBreakdown(items.map((item, index) => normalizeCategoryBreakdown(item, index, totalSpend)))
 }
 
+export const fetchDaywiseExpensesReport = async (filters = {}) => {
+  const data = unwrapResponseData(
+    await apiRequest(buildReportPath(API_URLS.reports.daywiseExpenses, filters)),
+    'Unable to load daywise expense report.',
+  )
+  const items = Array.isArray(data) ? data : []
+  const totalSpend = items.reduce((sum, item) => sum + toNumber(item.total_amount), 0)
+
+  return sortDaywiseExpenses(items.map((item, index) => normalizeDaywiseExpense(item, index, totalSpend)))
+}
+
 export const filterAccountBalanceRows = (items = [], { search = '', typeFilter = 'all' } = {}) => {
   const normalizedSearch = String(search ?? '').trim().toLowerCase()
 
@@ -265,6 +334,12 @@ export const filterCategoryBreakdownRows = (items = [], { search = '', typeFilte
 
     return matchesType && matchesSearch
   })
+}
+
+export const filterDaywiseExpenseRows = (items = [], { search = '' } = {}) => {
+  const normalizedSearch = String(search ?? '').trim().toLowerCase()
+
+  return items.filter((item) => !normalizedSearch || item.searchText.includes(normalizedSearch))
 }
 
 export const paginateReportRows = paginateRows
@@ -291,5 +366,19 @@ export const buildCategoryBreakdownMetrics = (items = []) => {
     topShareLabel: topCategory ? topCategory.shareLabel : '0.0%',
     totalCategoriesLabel: countFormatter.format(items.length),
     totalSpendLabel: formatCurrencyLabel(totalSpend),
+  }
+}
+
+export const buildDaywiseExpenseMetrics = (items = []) => {
+  const totalSpend = items.reduce((sum, item) => sum + item.totalAmountValue, 0)
+  const totalTransactions = items.reduce((sum, item) => sum + item.transactionCount, 0)
+  const uniqueDates = new Set(items.map((item) => item.expenseDate).filter(Boolean))
+  const uniqueCategories = new Set(items.map((item) => item.categoryIdLabel).filter(Boolean))
+
+  return {
+    totalCategoriesLabel: countFormatter.format(uniqueCategories.size),
+    totalDaysLabel: countFormatter.format(uniqueDates.size),
+    totalSpendLabel: formatCurrencyLabel(totalSpend),
+    totalTransactionsLabel: countFormatter.format(totalTransactions),
   }
 }

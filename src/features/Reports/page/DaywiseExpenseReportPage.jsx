@@ -1,39 +1,37 @@
-import { PieChart, RefreshCcw, Tags } from 'lucide-react'
+import { CalendarDays, PieChart, ReceiptText, RefreshCcw } from 'lucide-react'
 import { useMemo } from 'react'
 import AdminDataTable, { AdminTableButton } from '../../../components/ui/AdminDataTable'
 import { ReportsOverview } from '../component/ReportsOverview.jsx'
-import { categoryBreakdownColumns } from '../component/reportColumns.jsx'
-import { REPORT_CATEGORY_TYPE_OPTIONS, REPORTS_PAGE_COPY } from '../constants/reports.constants'
-import { useCategoryBreakdownReport } from '../hooks/useReports'
+import { daywiseExpenseColumns } from '../component/reportColumns.jsx'
+import { REPORTS_PAGE_COPY } from '../constants/reports.constants'
+import { useDaywiseExpenseReport } from '../hooks/useReports'
 
-const buildCategoryMetricItems = (metrics) => [
-  { icon: Tags, label: 'Tracked Categories', tone: 'blue', value: metrics.totalCategoriesLabel },
+const buildDaywiseExpenseMetricItems = (metrics) => [
+  { icon: CalendarDays, label: 'Report Days', tone: 'blue', value: metrics.totalDaysLabel },
+  { icon: PieChart, label: 'Tracked Categories', tone: 'cyan', value: metrics.totalCategoriesLabel },
+  { icon: ReceiptText, label: 'Expense Transactions', tone: 'emerald', value: metrics.totalTransactionsLabel },
   { icon: PieChart, label: 'Total Spend', tone: 'amber', value: metrics.totalSpendLabel },
-  { icon: PieChart, label: 'Top Category', tone: 'cyan', value: metrics.topCategoryLabel },
-  { icon: PieChart, label: 'Top Share', tone: 'emerald', value: metrics.topShareLabel },
 ]
 
-export default function CategoryBreakdownReportPage() {
-  const apiState = useCategoryBreakdownReport()
+export default function DaywiseExpenseReportPage() {
+  const apiState = useDaywiseExpenseReport()
 
   const resultLabel = useMemo(() => {
     if (!apiState.pagination.total && !apiState.items.length) {
-      return 'No category breakdown records found.'
+      return 'No daywise expense records found.'
     }
 
-    return `Showing ${apiState.pagination.from}-${apiState.pagination.to} of ${apiState.pagination.total} matched categories`
+    return `Showing ${apiState.pagination.from}-${apiState.pagination.to} of ${apiState.pagination.total} matched daywise expense rows`
   }, [apiState.items.length, apiState.pagination.from, apiState.pagination.to, apiState.pagination.total])
 
   const hasFiltersApplied =
     apiState.fromDate !== apiState.defaultDateRange.fromDate ||
     apiState.toDate !== apiState.defaultDateRange.toDate ||
-    apiState.typeFilter !== 'all' ||
     Boolean(apiState.search)
 
   const clearFilters = () => {
     apiState.setPage(1)
     apiState.setSearch('')
-    apiState.setTypeFilter('all')
     apiState.setFromDate(apiState.defaultDateRange.fromDate)
     apiState.setToDate(apiState.defaultDateRange.toDate)
   }
@@ -43,33 +41,16 @@ export default function CategoryBreakdownReportPage() {
       <div className="routes-page__inner">
         <header className="routes-page__header">
           <div className="routes-page__title">
-            <PieChart size={20} color="#4f83ff" />
-            <h1>{REPORTS_PAGE_COPY.categoryBreakdown.title}</h1>
+            <CalendarDays size={20} color="#4f83ff" />
+            <h1>{REPORTS_PAGE_COPY.daywiseExpenses.title}</h1>
           </div>
-          <p className="routes-page__subtitle">{REPORTS_PAGE_COPY.categoryBreakdown.subtitle}</p>
+          <p className="routes-page__subtitle">{REPORTS_PAGE_COPY.daywiseExpenses.subtitle}</p>
         </header>
 
-        <ReportsOverview isLoading={apiState.isLoading} items={buildCategoryMetricItems(apiState.metrics)} />
+        <ReportsOverview isLoading={apiState.isLoading} items={buildDaywiseExpenseMetricItems(apiState.metrics)} />
 
         <section className="mb-5 rounded-xl border border-[#332d30] bg-[#171314] p-4">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <label className="crud-field">
-              <span>Category Type</span>
-              <select
-                value={apiState.typeFilter}
-                onChange={(event) => {
-                  apiState.setPage(1)
-                  apiState.setTypeFilter(event.target.value)
-                }}
-              >
-                {REPORT_CATEGORY_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <label className="crud-field">
               <span>From Date</span>
               <input
@@ -120,9 +101,9 @@ export default function CategoryBreakdownReportPage() {
               Refresh
             </AdminTableButton>
           }
-          columns={categoryBreakdownColumns}
+          columns={daywiseExpenseColumns}
           data={apiState.items}
-          emptyMessage="No category breakdown data found for this view."
+          emptyMessage="No daywise expense data found for this view."
           filters={null}
           isLoading={apiState.isLoading}
           onPageChange={apiState.setPage}
@@ -133,7 +114,7 @@ export default function CategoryBreakdownReportPage() {
           pagination={apiState.pagination}
           resultLabel={resultLabel}
           search={apiState.search}
-          searchPlaceholder={REPORTS_PAGE_COPY.categoryBreakdown.searchPlaceholder}
+          searchPlaceholder={REPORTS_PAGE_COPY.daywiseExpenses.searchPlaceholder}
         />
       </div>
     </main>

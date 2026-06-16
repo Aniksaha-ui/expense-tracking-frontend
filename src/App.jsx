@@ -12,6 +12,7 @@ const AccountsPage = lazy(() => import('./features/Accounts/page/AccountsPage'))
 const AccountBalancesReportPage = lazy(() => import('./features/Reports/page/AccountBalancesReportPage'))
 const CategoriesPage = lazy(() => import('./features/Categories/page/CategoriesPage'))
 const CategoryBreakdownReportPage = lazy(() => import('./features/Reports/page/CategoryBreakdownReportPage'))
+const DaywiseExpenseReportPage = lazy(() => import('./features/Reports/page/DaywiseExpenseReportPage'))
 const RecurringExpensesPage = lazy(() => import('./features/RecurringExpenses/page/RecurringExpensesPage'))
 const ReportsPage = lazy(() => import('./features/Reports/page/ReportsPage'))
 const SummaryReportPage = lazy(() => import('./features/Reports/page/SummaryReportPage'))
@@ -140,6 +141,14 @@ function AppRoutes() {
           element={
             <Suspense fallback={<FullPageLoader message="Loading category breakdown report..." />}>
               <CategoryBreakdownReportPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.reportDaywiseExpenses}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading daywise expense report..." />}>
+              <DaywiseExpenseReportPage />
             </Suspense>
           }
         />

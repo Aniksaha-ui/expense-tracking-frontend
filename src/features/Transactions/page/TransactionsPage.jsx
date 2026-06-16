@@ -57,9 +57,9 @@ export default function TransactionsPage() {
     apiState.typeFilter !== 'all' ||
     apiState.accountFilter !== 'all' ||
     apiState.categoryFilter !== 'all' ||
-    apiState.fromDate ||
-    apiState.toDate ||
-    apiState.search
+    apiState.fromDate !== apiState.defaultDateRange.fromDate ||
+    apiState.toDate !== apiState.defaultDateRange.toDate ||
+    Boolean(apiState.search)
 
   const closeModal = () => {
     setEditingItem(null)
@@ -95,8 +95,8 @@ export default function TransactionsPage() {
     apiState.setTypeFilter('all')
     apiState.setAccountFilter('all')
     apiState.setCategoryFilter('all')
-    apiState.setFromDate('')
-    apiState.setToDate('')
+    apiState.setFromDate(apiState.defaultDateRange.fromDate)
+    apiState.setToDate(apiState.defaultDateRange.toDate)
     apiState.setSearch('')
   }
 
