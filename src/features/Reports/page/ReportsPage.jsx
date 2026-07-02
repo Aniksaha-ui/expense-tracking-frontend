@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, CalendarDays, PieChart, Wallet } from 'lucide-react'
+import { ArrowRight, BarChart3, CalendarDays, PieChart, TrendingUp, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { APP_ROUTES } from '../../../constants/routes'
 import { REPORTS_PAGE_COPY } from '../constants/reports.constants'
@@ -27,6 +27,12 @@ const reportDirectoryItems = [
     icon: CalendarDays,
     path: APP_ROUTES.reportDaywiseExpenses,
     title: 'Daywise Expenses',
+  },
+  {
+    description: 'Break down the current month into weekly expense blocks so you can spot busy and quiet spending weeks.',
+    icon: TrendingUp,
+    path: APP_ROUTES.reportWeeklyCurrentMonthAnalysis,
+    title: 'Weekly Current Month Analysis',
   },
 ]
 

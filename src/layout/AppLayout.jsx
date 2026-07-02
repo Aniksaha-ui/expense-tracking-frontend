@@ -34,6 +34,7 @@ const pageTitles = {
   '/reports/account-balances': 'Account Balances Report',
   '/reports/category-breakdown': 'Category Breakdown Report',
   '/reports/daywise-expenses': 'Daywise Expense Report',
+  '/reports/weekly-current-month-analysis': 'Weekly Current Month Analysis',
   '/reports/summary': 'Summary Report',
   '/admin/refunds': 'Refund Management',
   '/admin/transfers': 'Transfer Management',

@@ -54,6 +54,7 @@ export const API_URLS = {
     accountHistorySearch: "/admin/account-history",
     categoryBreakdown: "/reports/category-breakdown",
     daywiseExpenses: "/reports/daywise-expenses",
+    weeklyCurrentMonthAnalysis: "/reports/weekly-current-month-analysis",
     customerValue: "/admin/customerValue",
     dailyBalance: "/admin/monthlyDailyBalanceReport",
     dailyBalanceHistory: "/admin/monthly-daily-balance-reports",

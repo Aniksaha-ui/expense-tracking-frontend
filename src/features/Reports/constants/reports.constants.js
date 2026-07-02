@@ -28,6 +28,11 @@ export const REPORTS_PAGE_COPY = {
     subtitle: 'Track expense totals day by day and see which categories contributed to each reporting date.',
     title: 'Daywise Expense Report',
   },
+  weeklyCurrentMonthAnalysis: {
+    searchPlaceholder: 'Search by week label, range, amount, or transaction count',
+    subtitle: 'Analyze how expense spending is distributed week by week across the current calendar month.',
+    title: 'Weekly Current Month Analysis',
+  },
   hub: {
     subtitle: 'Choose a report to inspect balances, movement, and category performance from one place.',
     title: 'Reports',

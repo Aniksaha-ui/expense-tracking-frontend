@@ -8,13 +8,16 @@ import {
   emptyCategoryBreakdownMetrics,
   emptyDaywiseExpenseMetrics,
   emptySummaryReport,
+  emptyWeeklyCurrentMonthAnalysisReport,
   fetchAccountBalancesReport,
   fetchCategoryBreakdownReport,
   fetchDaywiseExpensesReport,
   fetchSummaryReport,
+  fetchWeeklyCurrentMonthAnalysisReport,
   filterAccountBalanceRows,
   filterCategoryBreakdownRows,
   filterDaywiseExpenseRows,
+  filterWeeklyCurrentMonthAnalysisRows,
   paginateReportRows,
   reportEmptyPagination,
 } from '../service/reportsService'
@@ -269,5 +272,56 @@ export function useDaywiseExpenseReport() {
     setSearch,
     setToDate,
     toDate,
+  }
+}
+
+export function useWeeklyCurrentMonthAnalysisReport() {
+  const toast = useToast()
+  const [report, setReport] = useState(emptyWeeklyCurrentMonthAnalysisReport)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const loadReport = useCallback(async () => {
+    setIsLoading(true)
+    setError('')
+
+    try {
+      setReport(await fetchWeeklyCurrentMonthAnalysisReport())
+    } catch (loadError) {
+      const message = loadError.message || 'Unable to load weekly current month analysis.'
+      setReport(emptyWeeklyCurrentMonthAnalysisReport)
+      setError(message)
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [toast])
+
+  useEffect(() => loadWithDelay(loadReport), [loadReport])
+
+  const filteredItems = useMemo(
+    () => filterWeeklyCurrentMonthAnalysisRows(report.weeks, { search }),
+    [report.weeks, search],
+  )
+  const paginatedState = useMemo(() => paginateReportRows(filteredItems, page), [filteredItems, page])
+
+  useEffect(() => {
+    if (page > paginatedState.pagination.lastPage) {
+      setPage(paginatedState.pagination.lastPage)
+    }
+  }, [page, paginatedState.pagination.lastPage])
+
+  return {
+    error,
+    isLoading,
+    items: paginatedState.rows,
+    pagination: report.weeks.length ? paginatedState.pagination : reportEmptyPagination,
+    refresh: loadReport,
+    report,
+    search,
+    setPage,
+    setSearch,
   }
 }

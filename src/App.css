@@ -2486,11 +2486,11 @@
 
   .crud-modal {
     align-items: flex-start;
-    padding: 16px;
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom));
   }
 
   .crud-modal__panel {
-    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
   }
 
   .crud-modal__header {
@@ -2518,9 +2518,17 @@
     padding: 16px;
   }
 
+  .crud-field input,
+  .crud-field select,
+  .crud-field textarea {
+    font-size: 16px;
+  }
+
   .crud-modal__footer {
     flex-direction: column-reverse;
-    padding: 16px;
+    position: sticky;
+    bottom: 0;
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom));
   }
 
   .crud-modal__footer > * {

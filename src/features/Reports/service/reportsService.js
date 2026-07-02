@@ -266,6 +266,16 @@ export const emptyDaywiseExpenseMetrics = {
   totalTransactionsLabel: '0',
 }
 
+export const emptyWeeklyCurrentMonthAnalysisReport = {
+  activeWeeksLabel: '0',
+  dateRangeLabel: 'No reporting window',
+  monthLabel: 'Current Month',
+  totalExpenseLabel: 'BDT 0.00',
+  totalTransactionsLabel: '0',
+  weeks: [],
+  weeksInMonthLabel: '0',
+}
+
 export const reportEmptyPagination = {
   currentPage: 1,
   from: 0,
@@ -314,6 +324,63 @@ export const fetchDaywiseExpensesReport = async (filters = {}) => {
   return sortDaywiseExpenses(items.map((item, index) => normalizeDaywiseExpense(item, index, totalSpend)))
 }
 
+export const fetchWeeklyCurrentMonthAnalysisReport = async () => {
+  const data = unwrapResponseData(
+    await apiRequest(API_URLS.reports.weeklyCurrentMonthAnalysis),
+    'Unable to load weekly current month analysis.',
+  )
+
+  const weeks = Array.isArray(data?.weeks) ? data.weeks : []
+  const summary = data?.summary ?? {}
+  const month = data?.month ?? {}
+  const totalExpense = toNumber(summary.total_expense)
+  const normalizedWeeks = [...weeks]
+    .map((item, index) => {
+      const totalAmount = toNumber(item.total_expense)
+      const transactionCount = toNumber(item.transaction_count)
+      const averageExpense = toNumber(item.average_expense)
+      const share = totalExpense > 0 ? (totalAmount / totalExpense) * 100 : 0
+
+      return {
+        averageExpenseLabel: formatCurrencyLabel(averageExpense),
+        averageExpenseValue: averageExpense,
+        calendarWeekLabel: item.calendar_week_label ?? `Week ${item.week ?? index + 1}`,
+        rangeLabel: item.range_label ?? 'No date range',
+        searchText: [
+          item.week_label,
+          item.calendar_week_label,
+          item.range_label,
+          item.total_expense,
+          item.transaction_count,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase(),
+        shareLabel: `${percentFormatter.format(share)}%`,
+        totalAmountLabel: formatCurrencyLabel(totalAmount),
+        totalAmountValue: totalAmount,
+        transactionCount,
+        transactionCountLabel: countFormatter.format(transactionCount),
+        weekEnd: item.week_end ?? '',
+        weekLabel: item.week_label ?? `Week ${index + 1}`,
+        weekSequence: toNumber(item.week_sequence) || index + 1,
+        weekStart: item.week_start ?? '',
+      }
+    })
+    .sort((firstItem, secondItem) => firstItem.weekSequence - secondItem.weekSequence)
+
+  return {
+    activeWeeksLabel: countFormatter.format(toNumber(summary.active_weeks)),
+    dateRangeLabel: `${formatDateLabel(month.from_date)} - ${formatDateLabel(month.to_date)}`,
+    monthLabel:
+      month.month_name && month.year ? `${month.month_name} ${month.year}` : 'Current Month',
+    totalExpenseLabel: formatCurrencyLabel(totalExpense),
+    totalTransactionsLabel: countFormatter.format(toNumber(summary.total_transactions)),
+    weeks: normalizedWeeks,
+    weeksInMonthLabel: countFormatter.format(toNumber(summary.weeks_in_month)),
+  }
+}
+
 export const filterAccountBalanceRows = (items = [], { search = '', typeFilter = 'all' } = {}) => {
   const normalizedSearch = String(search ?? '').trim().toLowerCase()
 
@@ -337,6 +404,12 @@ export const filterCategoryBreakdownRows = (items = [], { search = '', typeFilte
 }
 
 export const filterDaywiseExpenseRows = (items = [], { search = '' } = {}) => {
+  const normalizedSearch = String(search ?? '').trim().toLowerCase()
+
+  return items.filter((item) => !normalizedSearch || item.searchText.includes(normalizedSearch))
+}
+
+export const filterWeeklyCurrentMonthAnalysisRows = (items = [], { search = '' } = {}) => {
   const normalizedSearch = String(search ?? '').trim().toLowerCase()
 
   return items.filter((item) => !normalizedSearch || item.searchText.includes(normalizedSearch))

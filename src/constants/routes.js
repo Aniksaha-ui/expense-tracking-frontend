@@ -25,6 +25,7 @@ export const APP_ROUTES = {
   reportAccountBalances: "/reports/account-balances",
   reportCategoryBreakdown: "/reports/category-breakdown",
   reportDaywiseExpenses: "/reports/daywise-expenses",
+  reportWeeklyCurrentMonthAnalysis: "/reports/weekly-current-month-analysis",
   refunds: "/admin/refunds",
   transfers: "/transfers",
   transactions: "/transactions",
