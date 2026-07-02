@@ -326,7 +326,12 @@ export default function AdminDataTable({
             data.map((row) => (
               <tr key={getRowKey(row)}>
                 {visibleColumns.map((column) => (
-                  <td key={column.id} className={column.className} data-label={getColumnMobileLabel(column)}>
+                  <td
+                    key={column.id}
+                    className={column.className}
+                    data-label={getColumnMobileLabel(column)}
+                    style={{ textAlign: column.align }}
+                  >
                     {column.render ? column.render(row) : row[column.accessor ?? column.id]}
                   </td>
                 ))}
