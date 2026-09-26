@@ -48,6 +48,14 @@ const fallbackPrimaryMenuItems = [
     children: [],
   },
   {
+    id: "frontend-file-manager",
+    title: "File Manager",
+    path: APP_ROUTES.fileManager,
+    icon: "FileManagerIcon",
+    order: 260,
+    children: [],
+  },
+  {
     id: "frontend-recurring-expenses",
     title: "Recurring Expenses",
     path: APP_ROUTES.recurringExpenses,
@@ -126,12 +134,28 @@ const applyReportMenuRoute = (items = [], reportMenuItemId) =>
 const menuContainsRoute = (items = [], route) =>
   items.some((item) => getSupportedRoute(item.path) === route || menuContainsRoute(item.children ?? [], route));
 
+const removeDuplicateRoutes = (items = [], seenRoutes = new Set()) =>
+  items.reduce((uniqueItems, item) => {
+    const supportedRoute = getSupportedRoute(item.path);
+    if (supportedRoute && seenRoutes.has(supportedRoute)) {
+      return uniqueItems;
+    }
+    if (supportedRoute) {
+      seenRoutes.add(supportedRoute);
+    }
+    uniqueItems.push({ ...item, children: removeDuplicateRoutes(item.children ?? [], seenRoutes) });
+    return uniqueItems;
+  }, []);
+
 const withFallbackReportMenuItems = ({ mainMenuItems = [], bottomMenuItems = [] }) => {
+  const seenRoutes = new Set();
+  const uniqueMainMenuItems = removeDuplicateRoutes(mainMenuItems, seenRoutes);
+  const uniqueBottomMenuItems = removeDuplicateRoutes(bottomMenuItems, seenRoutes);
   const missingPrimaryMenuItems = fallbackPrimaryMenuItems.filter(
-    (item) => !menuContainsRoute([...mainMenuItems, ...bottomMenuItems], item.path),
+    (item) => !menuContainsRoute([...uniqueMainMenuItems, ...uniqueBottomMenuItems], item.path),
   );
-  const nextMainMenuItems = sortMenuItems([...mainMenuItems, ...missingPrimaryMenuItems]);
-  const nextBottomMenuItems = sortMenuItems(bottomMenuItems);
+  const nextMainMenuItems = sortMenuItems([...uniqueMainMenuItems, ...missingPrimaryMenuItems]);
+  const nextBottomMenuItems = sortMenuItems(uniqueBottomMenuItems);
   const reportMenuItem = findReportMenuItem(nextMainMenuItems) ?? findReportMenuItem(nextBottomMenuItems);
 
   if (!reportMenuItem) {
@@ -344,6 +368,15 @@ export const getSupportedRoute = (path) => {
 
   if (path === "/admin/refunds" || path === "/admin/refund" || path === "/refunds") {
     return APP_ROUTES.refunds;
+  }
+
+  if (
+    path === "/admin/file-manager" ||
+    path === "/file-manager" ||
+    path === "admin/file-manager" ||
+    path === "file-manager"
+  ) {
+    return APP_ROUTES.fileManager;
   }
 
   if (

@@ -30,7 +30,8 @@ const TransfersPage = lazy(() => import('./features/Transfers/page/TransfersPage
 const TransactionsPage = lazy(() => import('./features/Transactions/page/TransactionsPage'))
 const MenuItemFormPage = lazy(() => import('./features/MenuItems/page/MenuItemFormPage'))
 const MenuItemsPage = lazy(() => import('./features/MenuItems/page/MenuItemsPage'))
-const LoginPage = lazy(() => import('./features/auth/page/LoginPage'))
+const LoginPage = lazy(() => import("./features/auth/page/LoginPage"))
+const FileManagerPage = lazy(() => import('./features/FileManager/page/FileManagerPage'))
 
 function ProtectedRoute({ children }) {
   const {
@@ -199,6 +200,14 @@ function AppRoutes() {
           element={
             <Suspense fallback={<FullPageLoader message="Loading menu items..." />}>
               <MenuItemsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.fileManager}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading file manager..." />}>
+              <FileManagerPage />
             </Suspense>
           }
         />

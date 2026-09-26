@@ -2657,3 +2657,23 @@
     text-align: left;
   }
 }
+
+/* File manager */
+.fm-button { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius:.6rem; padding:.6rem .85rem; font-size:.875rem; font-weight:700; transition:background-color .15s,color .15s; }
+.fm-button:disabled { cursor:not-allowed; opacity:.6; }
+.fm-button-primary { background:#2563eb; color:#fff; }
+.fm-button-primary:hover { background:#1d4ed8; }
+.fm-button-secondary { border:1px solid #3b3538; color:#d7dae2; background:#211c1f; }
+.fm-button-secondary:hover { background:#302a2d; color:#fff; }
+.fm-dropzone { display:flex; min-height:84px; align-items:center; justify-content:center; gap:.6rem; border:1px dashed #464047; border-radius:.75rem; background:#171314; color:#969baa; padding:1rem; text-align:center; flex-wrap:wrap; }
+.fm-dropzone-active { border-color:#60a5fa; background:#17214a; }
+.fm-folder-card { display:flex; align-items:center; gap:.5rem; border:1px solid #2d282b; border-radius:.75rem; background:#211c1f; padding:.9rem; transition:border-color .15s,background-color .15s; }
+.fm-folder-card:hover { border-color:#4b5563; background:#292326; }
+.fm-icon-button { display:inline-flex; height:2rem; width:2rem; align-items:center; justify-content:center; border-radius:.4rem; color:#969baa; transition:background-color .15s,color .15s; }
+.fm-icon-button:hover { background:#302a2d; color:#fff; }
+.fm-menu-item { display:block; width:100%; padding:.45rem .7rem; text-align:left; font-size:.8rem; font-weight:600; color:#d7dae2; }
+.fm-menu-item:hover { background:#302a2d; color:#fff; }
+
+.fm-button-danger { background:#b91c1c; color:#fff; }
+.fm-button-danger:hover { background:#991b1b; }
+.fm-menu-item { display:flex; align-items:center; gap:.5rem; }
