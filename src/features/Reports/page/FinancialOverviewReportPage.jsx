@@ -18,6 +18,7 @@ import { BarChart3, CalendarRange, CircleDollarSign, RefreshCcw, TrendingDown, T
 import { apiRequest } from '../../../services/apiClient'
 import { unwrapResponseData } from '../../../services/resourceApi'
 import { API_URLS } from '../../../constants/apiUrls'
+import AdminDataTable from '../../../components/ui/AdminDataTable'
 
 const currency = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const dateLabel = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short' })
@@ -58,6 +59,7 @@ export default function FinancialOverviewReportPage() {
   const [fromDate, setFromDate] = useState(initialRange.fromDate)
   const [toDate, setToDate] = useState(initialRange.toDate)
   const [granularity, setGranularity] = useState('monthly')
+  const [ledgerSearch, setLedgerSearch] = useState('')
   const [report, setReport] = useState({ summary: {}, daily: [], costing_by_category: [], period: {} })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -89,11 +91,23 @@ export default function FinancialOverviewReportPage() {
       : 'Unknown',
     income: asNumber(row.total_income),
     costing: asNumber(row.total_costing),
+    opening: asNumber(row.opening_balance),
     closing: asNumber(row.closing_balance),
+    openingBalanceLabel: money(row.opening_balance),
+    incomeLabel: money(row.total_income),
+    costingLabel: money(row.total_costing),
+    netIncomeLabel: money(row.net_income),
+    closingBalanceLabel: money(row.closing_balance),
+    id: row.date,
   })), [granularity, report.daily])
   const categories = useMemo(() => report.costing_by_category.map((row, index) => ({
     ...row, value: asNumber(row.amount), color: COLORS[index % COLORS.length],
   })), [report.costing_by_category])
+  const filteredDaily = useMemo(() => {
+    const search = ledgerSearch.trim().toLowerCase()
+    if (!search) return daily
+    return daily.filter((row) => [row.label, row.openingBalanceLabel, row.incomeLabel, row.costingLabel, row.netIncomeLabel, row.closingBalanceLabel, row.transaction_count].join(' ').toLowerCase().includes(search))
+  }, [daily, ledgerSearch])
   const metrics = [
     { icon: Wallet, label: 'Opening Balance', tone: 'text-cyan-300', value: money(report.summary.opening_balance) },
     { icon: Wallet, label: 'Closing Balance', tone: 'text-blue-300', value: money(report.summary.closing_balance) },
@@ -101,6 +115,15 @@ export default function FinancialOverviewReportPage() {
     { icon: TrendingDown, label: 'Total Costing', tone: 'text-rose-300', value: money(report.summary.total_costing) },
     { icon: CircleDollarSign, label: 'Net Income', tone: asNumber(report.summary.net_income) >= 0 ? 'text-emerald-300' : 'text-rose-300', value: money(report.summary.net_income) },
   ]
+  const ledgerColumns = useMemo(() => [
+    { id: 'period', label: granularity === 'monthly' ? 'Month' : 'Date', render: (row) => <span className="font-semibold text-white">{row.label}</span>, width: '15%' },
+    { id: 'opening', label: 'Opening Balance', accessor: 'openingBalanceLabel', align: 'right', width: '16%' },
+    { id: 'income', label: 'Income', render: (row) => <span className="text-emerald-300">{row.incomeLabel}</span>, align: 'right', width: '14%' },
+    { id: 'costing', label: 'Costing', render: (row) => <span className="text-rose-300">{row.costingLabel}</span>, align: 'right', width: '14%' },
+    { id: 'net', label: 'Net Income', render: (row) => <span className={asNumber(row.net_income) >= 0 ? 'text-emerald-300' : 'text-rose-300'}>{row.netIncomeLabel}</span>, align: 'right', width: '14%' },
+    { id: 'closing', label: 'Closing Balance', render: (row) => <span className="font-semibold text-blue-200">{row.closingBalanceLabel}</span>, align: 'right', width: '16%' },
+    { id: 'entries', label: 'Entries', accessor: 'transaction_count', align: 'right', width: '11%' },
+  ], [granularity])
 
   return (
     <main className="routes-page">
@@ -136,13 +159,13 @@ export default function FinancialOverviewReportPage() {
           </ChartCard>
         </section>
 
-        <ChartCard title="Closing balance trend" subtitle={`End-of-${granularity === 'monthly' ? 'month' : 'day'} portfolio balance. This makes balance movement easy to compare over time.`}>
-          <ResponsiveContainer width="100%" height="100%"><LineChart data={daily} margin={{ left: 5, right: 16 }}><CartesianGrid stroke="#352e31" vertical={false} /><XAxis dataKey="label" tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><YAxis tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><Tooltip content={<TooltipContent />} /><Line type="monotone" dataKey="closing" name="Closing balance" stroke="#60a5fa" strokeWidth={3} dot={{ r: 3, fill: '#60a5fa' }} /></LineChart></ResponsiveContainer>
+        <ChartCard title="Opening vs closing balance" subtitle={`Compare the portfolio balance at the start and end of each ${granularity === 'monthly' ? 'month' : 'day'}.`}>
+          <ResponsiveContainer width="100%" height="100%"><LineChart data={daily} margin={{ left: 5, right: 16 }}><CartesianGrid stroke="#352e31" vertical={false} /><XAxis dataKey="label" tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><YAxis tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><Tooltip content={<TooltipContent />} /><Legend /><Line type="monotone" dataKey="opening" name="Opening balance" stroke="#a78bfa" strokeWidth={2} dot={{ r: 3, fill: '#a78bfa' }} /><Line type="monotone" dataKey="closing" name="Closing balance" stroke="#60a5fa" strokeWidth={3} dot={{ r: 3, fill: '#60a5fa' }} /></LineChart></ResponsiveContainer>
         </ChartCard>
 
         <section className="overflow-hidden rounded-2xl border border-[#332d30] bg-[#171314]">
           <div className="border-b border-[#2a2426] px-5 py-4 sm:px-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7ea1ff]">Table view</p><h2 className="mt-1 text-lg font-semibold text-white">{granularity === 'monthly' ? 'Monthly' : 'Daily'} financial ledger</h2><p className="mt-1 text-sm text-[#8fa0bd]">Opening and closing balances with each {granularity === 'monthly' ? 'month’s' : 'day’s'} income and costing.</p></div>
-          <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead className="bg-[#120f10] text-left text-xs uppercase tracking-wider text-[#7d8ca5]"><tr>{[granularity === 'monthly' ? 'Month' : 'Date', 'Opening Balance', 'Income', 'Costing', 'Net Income', 'Closing Balance', 'Entries'].map((heading) => <th key={heading} className="whitespace-nowrap px-5 py-3 font-semibold">{heading}</th>)}</tr></thead><tbody>{daily.map((row) => <tr key={row.date} className="border-t border-[#2a2426] text-[#dbe7fb]"><td className="whitespace-nowrap px-5 py-4 font-semibold text-white">{row.label}</td><td className="px-5 py-4">{money(row.opening_balance)}</td><td className="px-5 py-4 text-emerald-300">{money(row.total_income)}</td><td className="px-5 py-4 text-rose-300">{money(row.total_costing)}</td><td className={`px-5 py-4 ${asNumber(row.net_income) >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>{money(row.net_income)}</td><td className="px-5 py-4 font-semibold text-blue-200">{money(row.closing_balance)}</td><td className="px-5 py-4">{row.transaction_count}</td></tr>)}{!isLoading && !daily.length ? <tr><td colSpan="7" className="px-5 py-10 text-center text-[#7d8ca5]">No transactions found in the selected period.</td></tr> : null}</tbody></table></div>
+          <AdminDataTable columns={ledgerColumns} data={filteredDaily} getRowKey={(row) => row.id} isLoading={isLoading} emptyMessage="No transactions found in the selected period." onSearchChange={setLedgerSearch} resultLabel={`${filteredDaily.length} ${granularity === 'monthly' ? 'monthly' : 'daily'} ledger row${filteredDaily.length === 1 ? '' : 's'}`} search={ledgerSearch} searchPlaceholder="Search period or amount" />
         </section>
       </div>
     </main>

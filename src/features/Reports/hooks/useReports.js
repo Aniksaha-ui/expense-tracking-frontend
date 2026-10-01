@@ -261,6 +261,7 @@ export function useCategoryBreakdownReport() {
   }, [page, paginatedState.pagination.lastPage])
 
   return {
+    chartItems: filteredItems,
     defaultDateRange,
     error,
     fromDate,
