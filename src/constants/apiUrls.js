@@ -1,4 +1,9 @@
 export const API_URLS = {
+  cronReportDelivery: {
+    list: "/cron-report-delivery-settings",
+    update: "/cron-report-delivery-settings",
+    run: (jobKey) => "/cron-report-jobs/" + encodeURIComponent(jobKey) + "/run",
+  },
   auth: {
     login: "/auth/login",
   },

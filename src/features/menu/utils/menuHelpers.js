@@ -65,6 +65,15 @@ const fallbackPrimaryMenuItems = [
   },
 ];
 
+const fallbackCronReportDeliveryMenuItem = {
+  id: "frontend-cron-report-delivery",
+  title: "Report Delivery",
+  path: APP_ROUTES.cronReportDelivery,
+  icon: "SettingsIcon",
+  order: 1010,
+  children: [],
+};
+
 const fallbackReportMenuItem = {
   id: "frontend-reports-menu",
   title: "Reports",
@@ -156,12 +165,13 @@ const withFallbackReportMenuItems = ({ mainMenuItems = [], bottomMenuItems = [] 
   );
   const nextMainMenuItems = sortMenuItems([...uniqueMainMenuItems, ...missingPrimaryMenuItems]);
   const nextBottomMenuItems = sortMenuItems(uniqueBottomMenuItems);
+  const hasCronReportDeliveryMenuItem = menuContainsRoute([...nextMainMenuItems, ...nextBottomMenuItems], APP_ROUTES.cronReportDelivery);
   const reportMenuItem = findReportMenuItem(nextMainMenuItems) ?? findReportMenuItem(nextBottomMenuItems);
 
   if (!reportMenuItem) {
     return {
       mainMenuItems: nextMainMenuItems,
-      bottomMenuItems: sortMenuItems([...nextBottomMenuItems, fallbackReportMenuItem]),
+      bottomMenuItems: sortMenuItems([...nextBottomMenuItems, fallbackReportMenuItem, ...(hasCronReportDeliveryMenuItem ? [] : [fallbackCronReportDeliveryMenuItem])]),
     };
   }
 
@@ -170,7 +180,7 @@ const withFallbackReportMenuItems = ({ mainMenuItems = [], bottomMenuItems = [] 
 
   return {
     mainMenuItems: sortMenuItems(applyReportMenuRoute(cleanedMainMenuItems, reportMenuItem.id)),
-    bottomMenuItems: sortMenuItems(applyReportMenuRoute(cleanedBottomMenuItems, reportMenuItem.id)),
+    bottomMenuItems: sortMenuItems([...applyReportMenuRoute(cleanedBottomMenuItems, reportMenuItem.id), ...(hasCronReportDeliveryMenuItem ? [] : [fallbackCronReportDeliveryMenuItem])]),
   };
 };
 
@@ -209,6 +219,10 @@ export const normalizeStoredMenuState = (payload) => {
 export const hasChildren = (item) => Array.isArray(item?.children) && item.children.length > 0;
 
 export const getSupportedRoute = (path) => {
+  if (path === APP_ROUTES.cronReportDelivery || path === "/cron-report-delivery" || path === "cron-report-delivery") {
+    return APP_ROUTES.cronReportDelivery;
+  }
+
   if (
     path === "/admin/visa/applications" ||
     path === "/visa/applications" ||

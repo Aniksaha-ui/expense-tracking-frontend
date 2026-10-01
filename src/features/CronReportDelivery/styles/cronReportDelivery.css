@@ -1,0 +1,46 @@
+.cron-delivery__inner { max-width: 1180px; }
+.cron-delivery__header { align-items: flex-start; }
+.cron-delivery__page-actions, .cron-delivery__report-actions { display: flex; align-items: center; gap: .75rem; }
+.cron-delivery__secondary-button, .cron-delivery__run-button { display: inline-flex; height: 2.5rem; align-items: center; justify-content: center; gap: .5rem; border-radius: .625rem; padding: 0 .875rem; font-size: .875rem; font-weight: 700; transition: .18s ease; }
+.cron-delivery__secondary-button { border: 1px solid #3b3538; color: #dbe7fb; background: transparent; }
+.cron-delivery__secondary-button:hover:not(:disabled) { border-color: #6678aa; background: #1b1719; }
+.cron-delivery__period { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin: 1.5rem 0; border: 1px solid #373135; border-radius: 1rem; padding: 1rem 1.125rem; background: linear-gradient(100deg, #181416, #151213); }
+.cron-delivery__period-heading, .cron-delivery__channel-title { display: flex; align-items: center; gap: .75rem; }
+.cron-delivery__period-icon { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: .65rem; background: #20335f; color: #7ea1ff; }
+.cron-delivery__period h2, .cron-delivery__channel h3 { margin: 0; color: #fff; font-size: .875rem; font-weight: 700; }
+.cron-delivery__period p, .cron-delivery__channel p { margin: .2rem 0 0; color: #929aaa; font-size: .75rem; }
+.cron-delivery__dates { display: flex; align-items: end; gap: .65rem; }
+.cron-delivery__date-field { display: grid; gap: .35rem; color: #aeb8ca; font-size: .75rem; font-weight: 700; }
+.cron-delivery__date-field input { width: 9.5rem; border: 1px solid #423b3f; border-radius: .55rem; padding: .55rem .65rem; background: #100e0f; color: #f4f6fb; color-scheme: dark; font: inherit; }
+.cron-delivery__date-divider { padding: 0 0 .6rem; color: #6f7280; font-size: .75rem; }
+.cron-delivery__report { overflow: hidden; border: 1px solid #373135; border-radius: 1rem; background: #171314; box-shadow: 0 10px 25px rgba(0,0,0,.12); }
+.cron-delivery__report + .cron-delivery__report { margin-top: 1rem; }
+.cron-delivery__report--disabled { opacity: .64; }
+.cron-delivery__report-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.125rem 1.25rem; border-bottom: 1px solid #332d30; }
+.cron-delivery__eyebrow { color: #7897ef; font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.cron-delivery__report h2 { margin: .25rem 0; color: #fff; font-size: 1rem; font-weight: 750; }
+.cron-delivery__report code { color: #9baecc; font-size: .72rem; }
+.cron-delivery__switch-row { display: inline-flex; align-items: center; gap: .55rem; color: #cad4e8; font-size: .78rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.cron-delivery__switch-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.cron-delivery__switch { position: relative; width: 2.25rem; height: 1.25rem; border-radius: 99px; background: #4a4347; transition: background .18s ease; }
+.cron-delivery__switch::after { content: ''; position: absolute; top: .2rem; left: .2rem; width: .85rem; height: .85rem; border-radius: 50%; background: #d7d6d8; transition: transform .18s ease; }
+.cron-delivery__switch-input:checked + .cron-delivery__switch { background: #3165de; }
+.cron-delivery__switch-input:checked + .cron-delivery__switch::after { transform: translateX(1rem); background: #fff; }
+.cron-delivery__switch-input:focus-visible + .cron-delivery__switch { outline: 2px solid #8aa9ff; outline-offset: 2px; }
+.cron-delivery__switch-input:disabled + .cron-delivery__switch { cursor: not-allowed; opacity: .45; }
+.cron-delivery__run-button { border: 1px solid #356aec; background: #2859d7; color: #fff; }
+.cron-delivery__run-button:hover:not(:disabled) { background: #3568e6; box-shadow: 0 5px 14px rgba(38,86,213,.25); }
+.cron-delivery__run-button:disabled, .cron-delivery__secondary-button:disabled { cursor: not-allowed; opacity: .5; }
+.cron-delivery__channels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding: 1.25rem; }
+.cron-delivery__channel { border: 1px solid #393337; border-radius: .8rem; padding: 1rem; background: #201c1e; transition: border-color .18s ease, background .18s ease; }
+.cron-delivery__channel--active { border-color: #475e96; background: linear-gradient(135deg, #211e25, #1d1a1d); }
+.cron-delivery__channel-header { display: flex; align-items: start; justify-content: space-between; gap: .75rem; }
+.cron-delivery__channel-icon { display: grid; flex: 0 0 auto; place-items: center; width: 2rem; height: 2rem; border-radius: .55rem; }
+.cron-delivery__channel-icon--email { background: #253864; color: #84a8ff; }.cron-delivery__channel-icon--telegram { background: #12394b; color: #56c8f5; }
+.cron-delivery__switch-row--compact { padding-top: .25rem; }
+.cron-delivery__input-label { display: flex; justify-content: space-between; gap: .75rem; margin: 1rem 0 .45rem; color: #d3dae7; font-size: .75rem; font-weight: 700; }
+.cron-delivery__input-label span { color: #848d9f; font-weight: 500; }
+.cron-delivery__textarea { box-sizing: border-box; display: block; width: 100%; min-height: 7.25rem; resize: vertical; border: 1px solid #443c40; border-radius: .6rem; padding: .7rem .75rem; background: #131011; color: #f5f6fa; font: 400 .84rem/1.45 Inter, sans-serif; outline: none; transition: border-color .18s ease, box-shadow .18s ease; }
+.cron-delivery__textarea:focus { border-color: #6088ef; box-shadow: 0 0 0 3px rgba(79,131,255,.13); }.cron-delivery__textarea:disabled { cursor: not-allowed; opacity: .42; }
+.cron-delivery__note { display: flex; align-items: center; gap: .45rem; margin: 0; padding: .85rem 1.25rem; border-top: 1px solid #302a2d; color: #909aaa; font-size: .72rem; }.cron-delivery__note strong { color: #c4cede; }
+@media (max-width: 720px) { .cron-delivery__header, .cron-delivery__period, .cron-delivery__report-header { align-items: stretch; flex-direction: column; }.cron-delivery__page-actions, .cron-delivery__report-actions { justify-content: space-between; }.cron-delivery__dates { width: 100%; }.cron-delivery__date-field { flex: 1; }.cron-delivery__date-field input { width: 100%; box-sizing: border-box; }.cron-delivery__channels { grid-template-columns: 1fr; padding: 1rem; } }

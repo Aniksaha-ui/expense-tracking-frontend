@@ -32,6 +32,7 @@ const MenuItemFormPage = lazy(() => import('./features/MenuItems/page/MenuItemFo
 const MenuItemsPage = lazy(() => import('./features/MenuItems/page/MenuItemsPage'))
 const LoginPage = lazy(() => import("./features/auth/page/LoginPage"))
 const FileManagerPage = lazy(() => import('./features/FileManager/page/FileManagerPage'))
+const CronReportDeliveryPage = lazy(() => import('./features/CronReportDelivery/page/CronReportDeliveryPage'))
 
 function ProtectedRoute({ children }) {
   const {
@@ -200,6 +201,14 @@ function AppRoutes() {
           element={
             <Suspense fallback={<FullPageLoader message="Loading menu items..." />}>
               <MenuItemsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.cronReportDelivery}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading cron report delivery settings..." />}>
+              <CronReportDeliveryPage />
             </Suspense>
           }
         />
