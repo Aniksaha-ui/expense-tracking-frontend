@@ -1,6 +1,7 @@
 import { BarChart3, Flame, RefreshCcw, Wallet } from 'lucide-react'
 import { useMemo } from 'react'
 import AdminDataTable, { AdminTableButton } from '../../../components/ui/AdminDataTable'
+import { ReportDateRangeFilters } from '../component/ReportDateRangeFilters.jsx'
 import { ReportsOverview } from '../component/ReportsOverview.jsx'
 import { REPORTS_PAGE_COPY } from '../constants/reports.constants'
 import { useBurnRateAnalysisReport } from '../hooks/useReports'
@@ -169,7 +170,7 @@ export default function BurnRateAnalysisReportPage() {
           columns={burnRateColumns}
           data={apiState.items}
           emptyMessage="No burn rate analysis data found."
-          filters={null}
+          filters={<ReportDateRangeFilters apiState={apiState} />}
           isLoading={apiState.isLoading}
           onPageChange={apiState.setPage}
           onSearchChange={(value) => {

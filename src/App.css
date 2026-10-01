@@ -208,17 +208,19 @@
 
 .routes-table-toolbar {
   display: flex;
-  height: 54px;
+  min-height: 68px;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
   border-bottom: 1px solid #2d282b;
-  padding: 0 16px;
+  padding: 8px 16px;
 }
 
 .routes-search {
   display: flex;
   width: 260px;
+  margin-right: auto;
   height: 30px;
   align-items: center;
   gap: 8px;
@@ -277,6 +279,43 @@
   color: #7ea1ff;
   font-size: 10px;
   font-weight: 800;
+}
+
+.report-date-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.report-date-filters__field {
+  gap: 4px;
+  min-width: 140px;
+}
+
+.report-date-filters__field span {
+  color: #9fb2d0;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.report-date-filters__field input {
+  height: 32px;
+  padding: 0 10px;
+}
+
+.report-date-filters__action {
+  display: flex;
+  height: 32px;
+  align-items: stretch;
+}
+
+.report-date-filters__action .crud-button {
+  height: 32px;
+  min-width: max-content;
+  padding: 0 12px;
+  white-space: nowrap;
 }
 
 .routes-columns {
@@ -2399,6 +2438,26 @@
 
   .routes-columns {
     width: 100%;
+  }
+
+  .report-date-filters {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-date-filters__field {
+    min-width: 0;
+  }
+
+  .report-date-filters__field input,
+  .report-date-filters__action,
+  .report-date-filters__action .crud-button {
+    width: 100%;
+  }
+
+  .report-date-filters__action {
+    grid-column: span 2;
   }
 
   .routes-columns > .routes-control,

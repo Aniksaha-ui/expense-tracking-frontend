@@ -344,9 +344,9 @@ export const fetchAccountBalancesReport = async () => {
   return sortAccountBalances(items.map(normalizeAccountBalance))
 }
 
-export const fetchBurnRateAnalysisReport = async () => {
+export const fetchBurnRateAnalysisReport = async (filters = {}) => {
   const data = unwrapResponseData(
-    await apiRequest(API_URLS.reports.burnRateAnalysis),
+    await apiRequest(buildReportPath(API_URLS.reports.burnRateAnalysis, filters)),
     'Unable to load burn rate analysis.',
   )
 
@@ -424,9 +424,9 @@ export const fetchDaywiseExpensesReport = async (filters = {}) => {
   return sortDaywiseExpenses(items.map((item, index) => normalizeDaywiseExpense(item, index, totalSpend)))
 }
 
-export const fetchWeeklyCurrentMonthAnalysisReport = async () => {
+export const fetchWeeklyCurrentMonthAnalysisReport = async (filters = {}) => {
   const data = unwrapResponseData(
-    await apiRequest(API_URLS.reports.weeklyCurrentMonthAnalysis),
+    await apiRequest(buildReportPath(API_URLS.reports.weeklyCurrentMonthAnalysis, filters)),
     'Unable to load weekly current month analysis.',
   )
 
@@ -481,9 +481,9 @@ export const fetchWeeklyCurrentMonthAnalysisReport = async () => {
   }
 }
 
-export const fetchCurrentVsPreviousMonthAnalysisReport = async () => {
+export const fetchCurrentVsPreviousMonthAnalysisReport = async (filters = {}) => {
   const data = unwrapResponseData(
-    await apiRequest(API_URLS.reports.currentVsPreviousMonthAnalysis),
+    await apiRequest(buildReportPath(API_URLS.reports.currentVsPreviousMonthAnalysis, filters)),
     'Unable to load current vs previous month analysis.',
   )
 
@@ -574,9 +574,9 @@ export const fetchCurrentVsPreviousMonthAnalysisReport = async () => {
   }
 }
 
-export const fetchCategoryUsageAnalysisReport = async () => {
+export const fetchCategoryUsageAnalysisReport = async (filters = {}) => {
   const data = unwrapResponseData(
-    await apiRequest(API_URLS.reports.categoryUsageAnalysis),
+    await apiRequest(buildReportPath(API_URLS.reports.categoryUsageAnalysis, filters)),
     'Unable to load category usage analysis.',
   )
 

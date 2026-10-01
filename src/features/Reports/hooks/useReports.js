@@ -156,8 +156,11 @@ export function useAccountBalancesReport() {
 }
 
 export function useBurnRateAnalysisReport() {
+  const defaultDateRange = useMemo(() => createDefaultDateRange(), [])
   const toast = useToast()
   const [report, setReport] = useState(emptyBurnRateAnalysisReport)
+  const [fromDate, setFromDate] = useState(defaultDateRange.fromDate)
+  const [toDate, setToDate] = useState(defaultDateRange.toDate)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -168,7 +171,7 @@ export function useBurnRateAnalysisReport() {
     setError('')
 
     try {
-      setReport(await fetchBurnRateAnalysisReport())
+      setReport(await fetchBurnRateAnalysisReport({ fromDate, toDate }))
     } catch (loadError) {
       const message = loadError.message || 'Unable to load burn rate analysis.'
       setReport(emptyBurnRateAnalysisReport)
@@ -177,7 +180,7 @@ export function useBurnRateAnalysisReport() {
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [fromDate, toDate, toast])
 
   useEffect(() => loadWithDelay(loadReport), [loadReport])
 
@@ -194,7 +197,9 @@ export function useBurnRateAnalysisReport() {
   }, [page, paginatedState.pagination.lastPage])
 
   return {
+    defaultDateRange,
     error,
+    fromDate,
     isLoading,
     items: paginatedState.rows,
     pagination: report.rows.length ? paginatedState.pagination : reportEmptyPagination,
@@ -202,7 +207,10 @@ export function useBurnRateAnalysisReport() {
     report,
     search,
     setPage,
+    setFromDate,
     setSearch,
+    setToDate,
+    toDate,
   }
 }
 
@@ -336,8 +344,11 @@ export function useDaywiseExpenseReport() {
 }
 
 export function useWeeklyCurrentMonthAnalysisReport() {
+  const defaultDateRange = useMemo(() => createDefaultDateRange(), [])
   const toast = useToast()
   const [report, setReport] = useState(emptyWeeklyCurrentMonthAnalysisReport)
+  const [fromDate, setFromDate] = useState(defaultDateRange.fromDate)
+  const [toDate, setToDate] = useState(defaultDateRange.toDate)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -348,7 +359,7 @@ export function useWeeklyCurrentMonthAnalysisReport() {
     setError('')
 
     try {
-      setReport(await fetchWeeklyCurrentMonthAnalysisReport())
+      setReport(await fetchWeeklyCurrentMonthAnalysisReport({ fromDate, toDate }))
     } catch (loadError) {
       const message = loadError.message || 'Unable to load weekly current month analysis.'
       setReport(emptyWeeklyCurrentMonthAnalysisReport)
@@ -357,7 +368,7 @@ export function useWeeklyCurrentMonthAnalysisReport() {
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [fromDate, toDate, toast])
 
   useEffect(() => loadWithDelay(loadReport), [loadReport])
 
@@ -374,7 +385,9 @@ export function useWeeklyCurrentMonthAnalysisReport() {
   }, [page, paginatedState.pagination.lastPage])
 
   return {
+    defaultDateRange,
     error,
+    fromDate,
     isLoading,
     items: paginatedState.rows,
     pagination: report.weeks.length ? paginatedState.pagination : reportEmptyPagination,
@@ -382,13 +395,19 @@ export function useWeeklyCurrentMonthAnalysisReport() {
     report,
     search,
     setPage,
+    setFromDate,
     setSearch,
+    setToDate,
+    toDate,
   }
 }
 
 export function useCurrentVsPreviousMonthAnalysisReport() {
+  const defaultDateRange = useMemo(() => createDefaultDateRange(), [])
   const toast = useToast()
   const [report, setReport] = useState(emptyCurrentVsPreviousMonthAnalysisReport)
+  const [fromDate, setFromDate] = useState(defaultDateRange.fromDate)
+  const [toDate, setToDate] = useState(defaultDateRange.toDate)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -399,7 +418,7 @@ export function useCurrentVsPreviousMonthAnalysisReport() {
     setError('')
 
     try {
-      setReport(await fetchCurrentVsPreviousMonthAnalysisReport())
+      setReport(await fetchCurrentVsPreviousMonthAnalysisReport({ fromDate, toDate }))
     } catch (loadError) {
       const message = loadError.message || 'Unable to load current vs previous month analysis.'
       setReport(emptyCurrentVsPreviousMonthAnalysisReport)
@@ -408,7 +427,7 @@ export function useCurrentVsPreviousMonthAnalysisReport() {
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [fromDate, toDate, toast])
 
   useEffect(() => loadWithDelay(loadReport), [loadReport])
 
@@ -425,7 +444,9 @@ export function useCurrentVsPreviousMonthAnalysisReport() {
   }, [page, paginatedState.pagination.lastPage])
 
   return {
+    defaultDateRange,
     error,
+    fromDate,
     isLoading,
     items: paginatedState.rows,
     pagination: report.rows.length ? paginatedState.pagination : reportEmptyPagination,
@@ -433,13 +454,19 @@ export function useCurrentVsPreviousMonthAnalysisReport() {
     report,
     search,
     setPage,
+    setFromDate,
     setSearch,
+    setToDate,
+    toDate,
   }
 }
 
 export function useCategoryUsageAnalysisReport() {
+  const defaultDateRange = useMemo(() => createDefaultDateRange(), [])
   const toast = useToast()
   const [report, setReport] = useState(emptyCategoryUsageAnalysisReport)
+  const [fromDate, setFromDate] = useState(defaultDateRange.fromDate)
+  const [toDate, setToDate] = useState(defaultDateRange.toDate)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -450,7 +477,7 @@ export function useCategoryUsageAnalysisReport() {
     setError('')
 
     try {
-      setReport(await fetchCategoryUsageAnalysisReport())
+      setReport(await fetchCategoryUsageAnalysisReport({ fromDate, toDate }))
     } catch (loadError) {
       const message = loadError.message || 'Unable to load category usage analysis.'
       setReport(emptyCategoryUsageAnalysisReport)
@@ -459,7 +486,7 @@ export function useCategoryUsageAnalysisReport() {
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [fromDate, toDate, toast])
 
   useEffect(() => loadWithDelay(loadReport), [loadReport])
 
@@ -476,7 +503,9 @@ export function useCategoryUsageAnalysisReport() {
   }, [page, paginatedState.pagination.lastPage])
 
   return {
+    defaultDateRange,
     error,
+    fromDate,
     isLoading,
     items: paginatedState.rows,
     pagination: report.rows.length ? paginatedState.pagination : reportEmptyPagination,
@@ -484,6 +513,9 @@ export function useCategoryUsageAnalysisReport() {
     report,
     search,
     setPage,
+    setFromDate,
     setSearch,
+    setToDate,
+    toDate,
   }
 }

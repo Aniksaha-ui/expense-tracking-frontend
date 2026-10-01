@@ -1,6 +1,7 @@
 import { CalendarDays, Eye, FolderTree, ReceiptText, RefreshCcw, TrendingUp, Wallet, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import AdminDataTable, { AdminTableButton } from '../../../components/ui/AdminDataTable'
+import { ReportDateRangeFilters } from '../component/ReportDateRangeFilters.jsx'
 import { fetchTransactionsCollection, paginateTransactions } from '../../Transactions/service/transactionsService'
 import { ReportsOverview } from '../component/ReportsOverview.jsx'
 import { REPORTS_PAGE_COPY } from '../constants/reports.constants'
@@ -428,7 +429,7 @@ export default function WeeklyCurrentMonthAnalysisReportPage() {
           columns={weeklyCurrentMonthAnalysisColumns}
           data={apiState.items}
           emptyMessage="No weekly current month analysis data found."
-          filters={null}
+          filters={<ReportDateRangeFilters apiState={apiState} />}
           isLoading={apiState.isLoading}
           onPageChange={apiState.setPage}
           onSearchChange={(value) => {
