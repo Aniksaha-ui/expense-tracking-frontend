@@ -5,6 +5,12 @@ import { REPORTS_PAGE_COPY } from '../constants/reports.constants'
 
 const reportDirectoryItems = [
   {
+    description: 'See opening and closing balances, total income and costing, daily ledger movement, and visual comparisons in one place.',
+    icon: BarChart3,
+    path: APP_ROUTES.reportFinancialOverview,
+    title: 'Financial Overview',
+  },
+  {
     description: 'Get a fast snapshot of balances, inflow, outflow, and overall movement for a selected time range.',
     icon: BarChart3,
     path: APP_ROUTES.reportSummary,

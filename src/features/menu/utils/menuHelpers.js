@@ -84,6 +84,7 @@ const fallbackReportMenuItem = {
 };
 
 const reportChildRoutes = new Set([
+  APP_ROUTES.reportFinancialOverview,
   APP_ROUTES.reportSummary,
   APP_ROUTES.reportAccountBalances,
   APP_ROUTES.reportCategoryBreakdown,
@@ -351,13 +352,21 @@ export const getSupportedRoute = (path) => {
   }
 
   if (
-    path === "/reports/summary" ||
-    path === "reports/summary" ||
+    path === "/reports/financial-overview" ||
+    path === "reports/financial-overview" ||
     path === "/admin/financialReport" ||
     path === "/financialReport" ||
     path === "admin/financialReport" ||
     path === "financialReport" ||
     path === "/admin/financial_report"
+  ) {
+    return APP_ROUTES.reportFinancialOverview;
+  }
+
+  if (
+    path === "/reports/summary" ||
+    path === "reports/summary" ||
+    path === "/admin/summary-report"
   ) {
     return APP_ROUTES.reportSummary;
   }

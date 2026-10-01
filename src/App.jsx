@@ -26,6 +26,7 @@ const WeeklyCurrentMonthAnalysisReportPage = lazy(
 const RecurringExpensesPage = lazy(() => import('./features/RecurringExpenses/page/RecurringExpensesPage'))
 const ReportsPage = lazy(() => import('./features/Reports/page/ReportsPage'))
 const SummaryReportPage = lazy(() => import('./features/Reports/page/SummaryReportPage'))
+const FinancialOverviewReportPage = lazy(() => import('./features/Reports/page/FinancialOverviewReportPage'))
 const TransfersPage = lazy(() => import('./features/Transfers/page/TransfersPage'))
 const TransactionsPage = lazy(() => import('./features/Transactions/page/TransactionsPage'))
 const MenuItemFormPage = lazy(() => import('./features/MenuItems/page/MenuItemFormPage'))
@@ -137,6 +138,14 @@ function AppRoutes() {
           element={
             <Suspense fallback={<FullPageLoader message="Loading summary report..." />}>
               <SummaryReportPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path={APP_ROUTES.reportFinancialOverview}
+          element={
+            <Suspense fallback={<FullPageLoader message="Loading financial report..." />}>
+              <FinancialOverviewReportPage />
             </Suspense>
           }
         />

@@ -53,6 +53,7 @@ export const API_URLS = {
     update: (menuItemId) => `/admin/menu_items/update/${menuItemId}`,
   },
   reports: {
+    financialOverview: "/reports/financial-overview",
     accountBalances: "/reports/account-balances",
     accountBalance: "/admin/accountBalance",
     accountBalanceHistory: (type) => `/admin/accountHistory/${encodeURIComponent(type)}`,

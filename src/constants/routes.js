@@ -24,6 +24,7 @@ export const APP_ROUTES = {
   recurringExpenses: "/recurring-expenses",
   reports: "/reports",
   reportSummary: "/reports/summary",
+  reportFinancialOverview: "/reports/financial-overview",
   reportAccountBalances: "/reports/account-balances",
   reportBurnRateAnalysis: "/reports/burn-rate-analysis",
   reportCategoryBreakdown: "/reports/category-breakdown",
