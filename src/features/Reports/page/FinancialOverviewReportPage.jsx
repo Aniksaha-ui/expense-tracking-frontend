@@ -3,12 +3,9 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Legend,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -23,7 +20,6 @@ import AdminDataTable from '../../../components/ui/AdminDataTable'
 const currency = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const dateLabel = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short' })
 const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' })
-const COLORS = ['#f97316', '#8b5cf6', '#ec4899', '#06b6d4', '#eab308', '#3b82f6']
 
 const asNumber = (value) => Number(value) || 0
 const money = (value) => `BDT ${currency.format(asNumber(value))}`
@@ -60,7 +56,7 @@ export default function FinancialOverviewReportPage() {
   const [toDate, setToDate] = useState(initialRange.toDate)
   const [granularity, setGranularity] = useState('monthly')
   const [ledgerSearch, setLedgerSearch] = useState('')
-  const [report, setReport] = useState({ summary: {}, daily: [], costing_by_category: [], period: {} })
+  const [report, setReport] = useState({ summary: {}, daily: [], period: {} })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -73,10 +69,10 @@ export default function FinancialOverviewReportPage() {
         await apiRequest(`${API_URLS.reports.financialOverview}?${params}`),
         'Unable to load financial report.',
       )
-      setReport({ summary: data?.summary ?? {}, daily: data?.daily ?? [], costing_by_category: data?.costing_by_category ?? [], period: data?.period ?? {} })
+      setReport({ summary: data?.summary ?? {}, daily: data?.daily ?? [], period: data?.period ?? {} })
     } catch (loadError) {
       setError(loadError.message || 'Unable to load financial report.')
-      setReport({ summary: {}, daily: [], costing_by_category: [], period: {} })
+      setReport({ summary: {}, daily: [], period: {} })
     } finally {
       setIsLoading(false)
     }
@@ -91,6 +87,7 @@ export default function FinancialOverviewReportPage() {
       : 'Unknown',
     income: asNumber(row.total_income),
     costing: asNumber(row.total_costing),
+    transfers: asNumber(row.total_bank_transfers),
     opening: asNumber(row.opening_balance),
     closing: asNumber(row.closing_balance),
     openingBalanceLabel: money(row.opening_balance),
@@ -100,9 +97,6 @@ export default function FinancialOverviewReportPage() {
     closingBalanceLabel: money(row.closing_balance),
     id: row.date,
   })), [granularity, report.daily])
-  const categories = useMemo(() => report.costing_by_category.map((row, index) => ({
-    ...row, value: asNumber(row.amount), color: COLORS[index % COLORS.length],
-  })), [report.costing_by_category])
   const filteredDaily = useMemo(() => {
     const search = ledgerSearch.trim().toLowerCase()
     if (!search) return daily
@@ -113,6 +107,7 @@ export default function FinancialOverviewReportPage() {
     { icon: Wallet, label: 'Closing Balance', tone: 'text-blue-300', value: money(report.summary.closing_balance) },
     { icon: TrendingUp, label: 'Total Income', tone: 'text-emerald-300', value: money(report.summary.total_income) },
     { icon: TrendingDown, label: 'Total Costing', tone: 'text-rose-300', value: money(report.summary.total_costing) },
+    { icon: Wallet, label: 'Bank-to-bank Transfers', tone: 'text-violet-300', value: money(report.summary.total_bank_transfers) },
     { icon: CircleDollarSign, label: 'Net Income', tone: asNumber(report.summary.net_income) >= 0 ? 'text-emerald-300' : 'text-rose-300', value: money(report.summary.net_income) },
   ]
   const ledgerColumns = useMemo(() => [
@@ -120,6 +115,7 @@ export default function FinancialOverviewReportPage() {
     { id: 'opening', label: 'Opening Balance', accessor: 'openingBalanceLabel', align: 'right', width: '16%' },
     { id: 'income', label: 'Income', render: (row) => <span className="text-emerald-300">{row.incomeLabel}</span>, align: 'right', width: '14%' },
     { id: 'costing', label: 'Costing', render: (row) => <span className="text-rose-300">{row.costingLabel}</span>, align: 'right', width: '14%' },
+    { id: 'transfers', label: 'Transfers', render: (row) => <span className="text-violet-300">{money(row.transfers)}</span>, align: 'right', width: '14%' },
     { id: 'net', label: 'Net Income', render: (row) => <span className={asNumber(row.net_income) >= 0 ? 'text-emerald-300' : 'text-rose-300'}>{row.netIncomeLabel}</span>, align: 'right', width: '14%' },
     { id: 'closing', label: 'Closing Balance', render: (row) => <span className="font-semibold text-blue-200">{row.closingBalanceLabel}</span>, align: 'right', width: '16%' },
     { id: 'entries', label: 'Entries', accessor: 'transaction_count', align: 'right', width: '11%' },
@@ -146,16 +142,13 @@ export default function FinancialOverviewReportPage() {
 
         {error ? <p className="month-balance-alert">{error}</p> : null}
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {metrics.map(({ icon: Icon, label, tone, value }) => <article key={label} className="rounded-xl border border-[#332d30] bg-[#171314] p-4"><Icon size={19} className={tone} /><p className="mt-4 text-xs uppercase tracking-[0.16em] text-[#7d8ca5]">{label}</p><p className={`mt-2 text-lg font-bold ${tone}`}>{isLoading ? 'Loading...' : value}</p></article>)}
         </section>
 
         <section className="grid gap-5 xl:grid-cols-2">
           <ChartCard title="Income vs costing" subtitle={`${granularity === 'monthly' ? 'Monthly' : 'Daily'} comparison of money earned against business and expense costs.`}>
             <ResponsiveContainer width="100%" height="100%"><BarChart data={daily} margin={{ left: 5, right: 8 }}><CartesianGrid stroke="#352e31" vertical={false} /><XAxis dataKey="label" tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><YAxis tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><Tooltip content={<TooltipContent />} /><Legend /><Bar dataKey="income" name="Income" fill="#34d399" radius={[4, 4, 0, 0]} /><Bar dataKey="costing" name="Costing" fill="#fb7185" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer>
-          </ChartCard>
-          <ChartCard title="Costing by category" subtitle="Which categories contribute the largest share of total costing.">
-            {categories.length ? <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={categories} dataKey="value" nameKey="category" innerRadius={58} outerRadius={95} paddingAngle={3}>{categories.map((row) => <Cell key={row.category} fill={row.color} />)}</Pie><Tooltip content={<TooltipContent />} /><Legend /></PieChart></ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-[#7d8ca5]">No costing categories in this range.</div>}
           </ChartCard>
         </section>
 
