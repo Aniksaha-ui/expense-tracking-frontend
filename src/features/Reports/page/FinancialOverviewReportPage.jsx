@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { BarChart3, CalendarRange, CircleDollarSign, RefreshCcw, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { ArrowLeftRight, BarChart3, CalendarRange, CircleDollarSign, RefreshCcw, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { apiRequest } from '../../../services/apiClient'
 import { unwrapResponseData } from '../../../services/resourceApi'
 import { API_URLS } from '../../../constants/apiUrls'
@@ -56,7 +56,7 @@ export default function FinancialOverviewReportPage() {
   const [toDate, setToDate] = useState(initialRange.toDate)
   const [granularity, setGranularity] = useState('monthly')
   const [ledgerSearch, setLedgerSearch] = useState('')
-  const [report, setReport] = useState({ summary: {}, daily: [], period: {} })
+  const [report, setReport] = useState({ summary: {}, daily: [], period: {}, transfer_receipts_by_account: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -69,10 +69,10 @@ export default function FinancialOverviewReportPage() {
         await apiRequest(`${API_URLS.reports.financialOverview}?${params}`),
         'Unable to load financial report.',
       )
-      setReport({ summary: data?.summary ?? {}, daily: data?.daily ?? [], period: data?.period ?? {} })
+      setReport({ summary: data?.summary ?? {}, daily: data?.daily ?? [], period: data?.period ?? {}, transfer_receipts_by_account: data?.transfer_receipts_by_account ?? [] })
     } catch (loadError) {
       setError(loadError.message || 'Unable to load financial report.')
-      setReport({ summary: {}, daily: [], period: {} })
+      setReport({ summary: {}, daily: [], period: {}, transfer_receipts_by_account: [] })
     } finally {
       setIsLoading(false)
     }
@@ -102,6 +102,11 @@ export default function FinancialOverviewReportPage() {
     if (!search) return daily
     return daily.filter((row) => [row.label, row.openingBalanceLabel, row.incomeLabel, row.costingLabel, row.netIncomeLabel, row.closingBalanceLabel, row.transaction_count].join(' ').toLowerCase().includes(search))
   }, [daily, ledgerSearch])
+  const transferReceipts = useMemo(() => report.transfer_receipts_by_account.map((row) => ({
+    ...row,
+    totalAmountLabel: money(row.total_amount),
+    id: row.account_name,
+  })), [report.transfer_receipts_by_account])
   const metrics = [
     { icon: Wallet, label: 'Opening Balance', tone: 'text-cyan-300', value: money(report.summary.opening_balance) },
     { icon: Wallet, label: 'Closing Balance', tone: 'text-blue-300', value: money(report.summary.closing_balance) },
@@ -120,6 +125,10 @@ export default function FinancialOverviewReportPage() {
     { id: 'closing', label: 'Closing Balance', render: (row) => <span className="font-semibold text-blue-200">{row.closingBalanceLabel}</span>, align: 'right', width: '16%' },
     { id: 'entries', label: 'Entries', accessor: 'transaction_count', align: 'right', width: '11%' },
   ], [granularity])
+  const transferReceiptColumns = useMemo(() => [
+    { id: 'account', label: 'Destination Account', accessor: 'account_name', render: (row) => <span className="font-semibold text-white">{row.account_name}</span> },
+    { id: 'total', label: 'Total Received', accessor: 'totalAmountLabel', align: 'right', render: (row) => <span className="font-semibold text-violet-300">{row.totalAmountLabel}</span> },
+  ], [])
 
   return (
     <main className="routes-page">
@@ -155,6 +164,11 @@ export default function FinancialOverviewReportPage() {
         <ChartCard title="Opening vs closing balance" subtitle={`Compare the portfolio balance at the start and end of each ${granularity === 'monthly' ? 'month' : 'day'}.`}>
           <ResponsiveContainer width="100%" height="100%"><LineChart data={daily} margin={{ left: 5, right: 16 }}><CartesianGrid stroke="#352e31" vertical={false} /><XAxis dataKey="label" tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><YAxis tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: '#8fa0bd', fontSize: 11 }} axisLine={false} tickLine={false} /><Tooltip content={<TooltipContent />} /><Legend /><Line type="monotone" dataKey="opening" name="Opening balance" stroke="#a78bfa" strokeWidth={2} dot={{ r: 3, fill: '#a78bfa' }} /><Line type="monotone" dataKey="closing" name="Closing balance" stroke="#60a5fa" strokeWidth={3} dot={{ r: 3, fill: '#60a5fa' }} /></LineChart></ResponsiveContainer>
         </ChartCard>
+
+        <section className="overflow-hidden rounded-2xl border border-[#332d30] bg-[#171314]">
+          <div className="border-b border-[#2a2426] px-5 py-4 sm:px-6"><div className="flex items-center gap-2 text-[#a78bfa]"><ArrowLeftRight size={17} /><p className="text-xs font-semibold uppercase tracking-[0.2em]">Transfers</p></div><h2 className="mt-1 text-lg font-semibold text-white">Transfer receipts by account</h2><p className="mt-1 text-sm text-[#8fa0bd]">Total transfers received by each destination account in the selected period.</p></div>
+          <AdminDataTable columns={transferReceiptColumns} data={transferReceipts} getRowKey={(row) => row.id} isLoading={isLoading} emptyMessage="No transfers were received in the selected period." resultLabel={`${transferReceipts.length} destination account${transferReceipts.length === 1 ? '' : 's'}`} />
+        </section>
 
         <section className="overflow-hidden rounded-2xl border border-[#332d30] bg-[#171314]">
           <div className="border-b border-[#2a2426] px-5 py-4 sm:px-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7ea1ff]">Table view</p><h2 className="mt-1 text-lg font-semibold text-white">{granularity === 'monthly' ? 'Monthly' : 'Daily'} financial ledger</h2><p className="mt-1 text-sm text-[#8fa0bd]">Opening and closing balances with each {granularity === 'monthly' ? 'month’s' : 'day’s'} income and costing.</p></div>
