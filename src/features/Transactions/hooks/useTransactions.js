@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useToast } from '../../../components/common/Toaster'
 import {
   buildTransactionMetrics,
+  createBulkTransactionEntries,
   createTransactionEntry,
   emptyTransactionMetrics,
   fetchTransactionDependencies,
@@ -160,10 +161,24 @@ export default function useTransactions() {
     }
   }
 
+  const createBulkItems = async (transactions) => {
+    setIsMutating(true)
+
+    try {
+      await createBulkTransactionEntries(transactions)
+      toast.success(`${transactions.length} transactions created successfully.`)
+      setPage(1)
+      await Promise.all([loadTransactions(), loadDependencies()])
+    } finally {
+      setIsMutating(false)
+    }
+  }
+
   return {
     accountFilter,
     accounts,
     categories,
+    createBulkItems,
     categoryFilter,
     createItem,
     defaultDateRange,

@@ -22,6 +22,7 @@ export function TransactionEntryModal({
   editingItem = null,
   isMutating,
   onClose,
+  onBulk,
   onSubmit,
 }) {
   const defaultValues = useMemo(
@@ -93,9 +94,16 @@ export function TransactionEntryModal({
             <p className="crud-modal__eyebrow">{isEditing ? 'Edit transaction' : 'Create transaction'}</p>
             <h2>{isEditing ? `${activeOption.label} Details` : `${activeOption.label} Transaction`}</h2>
           </div>
-          <button type="button" onClick={onClose}>
-            Close
-          </button>
+          <div className="flex gap-2">
+            {!isEditing ? (
+              <button type="button" className="transaction-entry-modal__bulk-button" onClick={onBulk}>
+                Bulk transaction
+              </button>
+            ) : null}
+            <button type="button" onClick={onClose}>
+              Close
+            </button>
+          </div>
         </header>
 
         <div className="crud-modal__body">

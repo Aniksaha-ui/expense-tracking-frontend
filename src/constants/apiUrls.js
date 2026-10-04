@@ -97,6 +97,7 @@ export const API_URLS = {
     withdrawToCash: "/transfers/withdraw-to-cash",
   },
   transactions: {
+    bulk: "/transactions/bulk",
     deposit: "/transactions/deposit",
     expense: "/transactions/expense",
     income: "/transactions/income",

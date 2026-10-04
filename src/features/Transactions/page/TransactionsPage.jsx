@@ -12,6 +12,7 @@ import AdminDataTable, {
   AdminTableButton,
 } from '../../../components/ui/AdminDataTable'
 import { TransactionEntryModal } from '../component/TransactionEntryModal.jsx'
+import { BulkTransactionEntryModal } from '../component/BulkTransactionEntryModal.jsx'
 import { TransactionsOverview } from '../component/TransactionsOverview.jsx'
 import { transactionColumns } from '../component/column.jsx'
 import {
@@ -44,6 +45,7 @@ export default function TransactionsPage() {
   const toast = useToast()
   const [entryType, setEntryType] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
+  const [isBulkMode, setIsBulkMode] = useState(false)
 
   const resultLabel = useMemo(() => {
     if (!apiState.pagination.total && !apiState.items.length) {
@@ -64,16 +66,19 @@ export default function TransactionsPage() {
   const closeModal = () => {
     setEditingItem(null)
     setEntryType(null)
+    setIsBulkMode(false)
   }
 
   const openCreateModal = (nextEntryType) => {
     setEditingItem(null)
     setEntryType(nextEntryType)
+    setIsBulkMode(false)
   }
 
   const openEditModal = (item) => {
     setEditingItem(item)
     setEntryType(item.type)
+    setIsBulkMode(false)
   }
 
   const handleCreate = async (nextEntryType, payload) => {
@@ -87,6 +92,15 @@ export default function TransactionsPage() {
       closeModal()
     } catch (error) {
       toast.error(error.message || 'Unable to save transaction.')
+    }
+  }
+
+  const handleBulkCreate = async (transactions) => {
+    try {
+      await apiState.createBulkItems(transactions)
+      closeModal()
+    } catch (error) {
+      toast.error(error.message || 'Unable to save transactions.')
     }
   }
 
@@ -291,13 +305,23 @@ export default function TransactionsPage() {
           searchPlaceholder={TRANSACTIONS_PAGE_COPY.searchPlaceholder}
         />
 
-        {entryType ? (
+        {entryType && isBulkMode ? (
+          <BulkTransactionEntryModal
+            accounts={apiState.accounts}
+            categories={apiState.categories}
+            defaultEntryType={entryType}
+            isMutating={apiState.isMutating}
+            onClose={closeModal}
+            onSubmit={handleBulkCreate}
+          />
+        ) : entryType ? (
           <TransactionEntryModal
             accounts={apiState.accounts}
             categories={apiState.categories}
             defaultEntryType={entryType}
             editingItem={editingItem}
             isMutating={apiState.isMutating}
+            onBulk={() => setIsBulkMode(true)}
             onClose={closeModal}
             onSubmit={handleCreate}
           />

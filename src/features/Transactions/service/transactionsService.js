@@ -342,6 +342,15 @@ export const createTransactionEntry = async (entryType, payload) => {
   )
 }
 
+export const createBulkTransactionEntries = async (transactions) =>
+  assertSuccessfulExecution(
+    await apiRequest(API_URLS.transactions.bulk, {
+      body: JSON.stringify({ transactions }),
+      method: 'POST',
+    }),
+    'Unable to create transactions.',
+  )
+
 export const updateTransactionEntry = async (transactionId, payload) =>
   assertSuccessfulExecution(
     await updateTransactionRequest(transactionId, payload),

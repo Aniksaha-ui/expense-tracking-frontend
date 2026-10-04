@@ -1397,6 +1397,18 @@
   font-family: inherit;
 }
 
+.crud-modal__header .transaction-entry-modal__bulk-button {
+  border-color: rgb(79 131 255 / 55%);
+  background: rgb(79 131 255 / 12%);
+  color: #c5d9f7;
+}
+
+.crud-modal__header .transaction-entry-modal__bulk-button:hover {
+  border-color: #4f83ff;
+  background: rgb(79 131 255 / 22%);
+  color: #ffffff;
+}
+
 .crud-modal__eyebrow {
   margin: 0;
   color: #7ea1ff;
@@ -1471,6 +1483,144 @@
   background: #171314;
   padding: 16px 20px;
 }
+
+.bulk-transaction-modal {
+  width: min(960px, 100%);
+}
+
+.bulk-transaction-modal__header {
+  align-items: flex-start;
+  padding: 20px 24px;
+}
+
+.bulk-transaction-modal__description {
+  margin: 7px 0 0;
+  color: #8fa0bd;
+  font-size: 13px;
+}
+
+.crud-modal__header .bulk-transaction-modal__close {
+  display: grid;
+  width: 34px;
+  padding: 0;
+  place-items: center;
+}
+
+.bulk-transaction-modal__body {
+  display: block;
+  padding: 20px 24px 24px;
+}
+
+.bulk-transaction-modal__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bulk-transaction-modal__count {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.bulk-transaction-modal__count-label {
+  margin-left: 8px;
+  color: #8fa0bd;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bulk-transaction-modal__add-button {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgb(79 131 255 / 55%);
+  border-radius: 6px;
+  background: rgb(79 131 255 / 12%);
+  padding: 0 12px;
+  color: #bcd2ff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bulk-transaction-modal__add-button:hover:not(:disabled) {
+  border-color: #4f83ff;
+  background: rgb(79 131 255 / 22%);
+  color: #ffffff;
+}
+
+.bulk-transaction-modal__add-button:disabled { opacity: 0.55; }
+
+.bulk-transaction-modal__hint {
+  margin: 14px 0 18px;
+  color: #8fa0bd;
+  font-size: 12px;
+}
+
+.bulk-transaction-modal__entries { display: grid; gap: 14px; }
+
+.bulk-transaction-card {
+  border: 1px solid #332d30;
+  border-radius: 9px;
+  background: #211d20;
+  overflow: hidden;
+}
+
+.bulk-transaction-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  border-bottom: 1px solid #332d30;
+  padding: 0 16px;
+}
+
+.bulk-transaction-card__title { display: flex; align-items: center; gap: 9px; color: #ffffff; font-size: 13px; }
+.bulk-transaction-card__title span { color: #7ea1ff; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; }
+
+.bulk-transaction-card__remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: #fda4af;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.bulk-transaction-card__remove:hover { color: #ffe4e6; }
+
+.bulk-transaction-card__fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.bulk-transaction-card__account,
+.bulk-transaction-card__note { grid-column: span 2; }
+
+.bulk-transaction-card__category-placeholder > div {
+  display: flex;
+  height: 38px;
+  align-items: center;
+  border: 1px solid #332d30;
+  border-radius: 6px;
+  padding: 0 12px;
+  color: #8fa0bd;
+  font-size: 12px;
+}
+
+.bulk-transaction-card .crud-field { gap: 7px; }
+.bulk-transaction-card .crud-field span em { color: #72809a; font-size: 10px; font-style: normal; font-weight: 700; }
+.bulk-transaction-modal__alert { margin: 16px 0 0; }
+.bulk-transaction-modal__footer { padding: 16px 24px; }
 
 .crud-button {
   height: 36px;
@@ -2653,6 +2803,28 @@
   .crud-modal__body {
     grid-template-columns: minmax(0, 1fr);
     padding: 16px;
+  }
+
+  .bulk-transaction-modal__header,
+  .bulk-transaction-modal__body,
+  .bulk-transaction-modal__footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .bulk-transaction-modal__toolbar {
+    align-items: flex-start;
+  }
+
+  .bulk-transaction-card__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .bulk-transaction-card__account,
+  .bulk-transaction-card__note {
+    grid-column: span 2;
   }
 
   .crud-field input,
