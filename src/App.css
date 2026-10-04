@@ -1514,7 +1514,6 @@
 .bulk-transaction-modal__toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
 }
 
@@ -1533,13 +1532,16 @@
 }
 
 .bulk-transaction-modal__add-button {
-  display: inline-flex;
-  height: 36px;
+  display: flex;
+  width: 100%;
+  height: 42px;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  border: 1px solid rgb(79 131 255 / 55%);
+  margin-top: 14px;
+  border: 1px dashed rgb(79 131 255 / 60%);
   border-radius: 6px;
-  background: rgb(79 131 255 / 12%);
+  background: rgb(79 131 255 / 7%);
   padding: 0 12px;
   color: #bcd2ff;
   font: inherit;
@@ -1549,7 +1551,7 @@
 
 .bulk-transaction-modal__add-button:hover:not(:disabled) {
   border-color: #4f83ff;
-  background: rgb(79 131 255 / 22%);
+  background: rgb(79 131 255 / 16%);
   color: #ffffff;
 }
 

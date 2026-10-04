@@ -83,15 +83,6 @@ export function BulkTransactionEntryModal({
               <span className="bulk-transaction-modal__count">{fields.length}</span>
               <span className="bulk-transaction-modal__count-label">{fields.length === 1 ? 'entry' : 'entries'} ready</span>
             </div>
-            <button
-              type="button"
-              className="bulk-transaction-modal__add-button"
-              onClick={() => append(blankTransaction(defaultEntryType))}
-              disabled={fields.length >= 100}
-            >
-              <CirclePlus size={16} />
-              Add entry
-            </button>
           </div>
 
           <p className="bulk-transaction-modal__hint">
@@ -176,6 +167,15 @@ export function BulkTransactionEntryModal({
             )
           })}
           </div>
+          <button
+            type="button"
+            className="bulk-transaction-modal__add-button"
+            onClick={() => append(blankTransaction(defaultEntryType))}
+            disabled={fields.length >= 100}
+          >
+            <CirclePlus size={17} />
+            Add another transaction
+          </button>
           {isMissingAccounts || hasUnavailableExpenseCategory ? (
             <p className="month-balance-alert bulk-transaction-modal__alert">
               {isMissingAccounts ? 'Create an account before adding transactions.' : 'Create an expense category before adding expense entries.'}
