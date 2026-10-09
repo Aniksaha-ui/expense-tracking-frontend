@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { CirclePlus, Trash2, X } from 'lucide-react'
 import {
@@ -10,6 +11,7 @@ import {
   transactionFieldRules,
   validateTransactionCategory,
 } from '../validation/transactionValidation'
+import { scanTransactionReceipt } from '../service/transactionsService'
 
 const blankTransaction = (entryType = 'EXPENSE') => ({
   account_id: '',
@@ -23,6 +25,18 @@ const blankTransaction = (entryType = 'EXPENSE') => ({
 const toOptionLabel = (account) =>
   `${account.name} (${account.typeLabel}${account.is_active ? '' : ', inactive'})`
 
+const findCategoryId = (categories, categoryName, type) => {
+  if (!categoryName) return ''
+
+  const match = categories.find(
+    (category) =>
+      category.type === type &&
+      String(category.name).trim().toLocaleLowerCase() === String(categoryName).trim().toLocaleLowerCase(),
+  )
+
+  return match ? String(match.id) : ''
+}
+
 export function BulkTransactionEntryModal({
   accounts,
   categories,
@@ -31,6 +45,10 @@ export function BulkTransactionEntryModal({
   onClose,
   onSubmit,
 }) {
+  const receiptInputRef = useRef(null)
+  const [isScanning, setIsScanning] = useState(false)
+  const [scanError, setScanError] = useState('')
+  const [scanMessage, setScanMessage] = useState('')
   const {
     control,
     formState: { errors, isSubmitting },
@@ -41,7 +59,7 @@ export function BulkTransactionEntryModal({
     defaultValues: { transactions: [blankTransaction(defaultEntryType)] },
     mode: 'onBlur',
   })
-  const { append, fields, remove } = useFieldArray({ control, name: 'transactions' })
+  const { append, fields, remove, replace } = useFieldArray({ control, name: 'transactions' })
   const transactions = watch('transactions') || []
   const isMissingAccounts = accounts.length === 0
   const hasUnavailableExpenseCategory = transactions.some(
@@ -49,6 +67,48 @@ export function BulkTransactionEntryModal({
       transaction?.entry_type === 'EXPENSE' &&
       !categories.some((category) => category.type === 'EXPENSE'),
   )
+
+  const handleReceiptSelected = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+
+    if (!file) return
+
+    setScanError('')
+    setScanMessage('')
+    setIsScanning(true)
+
+    try {
+      const scanned = await scanTransactionReceipt(file)
+      const items = Array.isArray(scanned.items) ? scanned.items : []
+
+      if (items.length === 0) {
+        throw new Error('No individual line items were found. You can add the transactions manually.')
+      }
+
+      replace(items.slice(0, 100).map((item) => {
+        const entryType = ['EXPENSE', 'INCOME', 'DEPOSIT'].includes(item.type) ? item.type : 'EXPENSE'
+        const note = [scanned.merchant, item.description, item.note]
+          .filter((value, index, values) => value && values.indexOf(value) === index)
+          .join(' — ')
+
+        return {
+          ...blankTransaction(entryType),
+          amount: item.amount || '',
+          category_id: findCategoryId(categories, item.category, entryType),
+          entry_type: entryType,
+          note,
+          transaction_date: item.transaction_date || scanned.transaction_date || '',
+        }
+      }))
+
+      setScanMessage(`${items.length} line item${items.length === 1 ? '' : 's'} added from the receipt. Review the entries and choose an account before saving.`)
+    } catch (error) {
+      setScanError(error.message || 'Unable to scan this receipt.')
+    } finally {
+      setIsScanning(false)
+    }
+  }
 
   return (
     <div className="crud-modal" role="dialog" aria-modal="true">
@@ -83,10 +143,28 @@ export function BulkTransactionEntryModal({
               <span className="bulk-transaction-modal__count">{fields.length}</span>
               <span className="bulk-transaction-modal__count-label">{fields.length === 1 ? 'entry' : 'entries'} ready</span>
             </div>
+            <input
+              ref={receiptInputRef}
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              type="file"
+              onChange={handleReceiptSelected}
+            />
+            <button
+              type="button"
+              className="transaction-entry-modal__bulk-button"
+              disabled={isScanning}
+              onClick={() => receiptInputRef.current?.click()}
+            >
+              {isScanning ? 'Scanning receipt...' : 'Scan receipt into items'}
+            </button>
           </div>
 
+          {scanError ? <p className="month-balance-alert bulk-transaction-modal__alert">{scanError}</p> : null}
+          {scanMessage ? <p className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">{scanMessage}</p> : null}
+
           <p className="bulk-transaction-modal__hint">
-            You can mix expenses, income, and deposits. All entries are saved as one batch.
+            Scan a receipt to create one editable entry for each line item, or add entries manually. All entries are saved as one batch.
           </p>
 
           <div className="bulk-transaction-modal__entries">

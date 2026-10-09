@@ -102,6 +102,7 @@ export const API_URLS = {
     expense: "/transactions/expense",
     income: "/transactions/income",
     list: "/transactions",
+    scanReceipt: "/transactions/scan-receipt",
     update: (transactionId) => `/transactions/${transactionId}`,
   },
   visaApplications: {

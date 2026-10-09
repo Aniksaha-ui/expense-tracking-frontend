@@ -46,6 +46,19 @@ const entryEndpointMap = {
   INCOME: API_URLS.transactions.income,
 }
 
+export const scanTransactionReceipt = async (file) => {
+  const formData = new FormData()
+  formData.append('receipt', file)
+
+  return unwrapResponseData(
+    await apiRequest(API_URLS.transactions.scanReceipt, {
+      body: formData,
+      method: 'POST',
+    }),
+    'Unable to scan receipt.',
+  )
+}
+
 const transactionUpdateCandidates = (transactionId) => [
   { endpoint: API_URLS.transactions.update(transactionId), method: 'PUT' },
   { endpoint: API_URLS.transactions.update(transactionId), method: 'PATCH' },

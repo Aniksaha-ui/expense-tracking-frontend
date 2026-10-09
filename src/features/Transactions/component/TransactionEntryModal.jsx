@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
   buildTransactionFormState,
@@ -11,6 +11,7 @@ import {
   transactionFieldRules,
   validateTransactionCategory,
 } from '../validation/transactionValidation'
+import { scanTransactionReceipt } from '../service/transactionsService'
 
 const toOptionLabel = (account) =>
   `${account.name} (${account.typeLabel}${account.is_active ? '' : ', inactive'})`
@@ -32,6 +33,10 @@ export function TransactionEntryModal({
         : buildTransactionFormState({ type: defaultEntryType }),
     [defaultEntryType, editingItem],
   )
+  const receiptInputRef = useRef(null)
+  const [scanError, setScanError] = useState('')
+  const [scanMessage, setScanMessage] = useState('')
+  const [isScanning, setIsScanning] = useState(false)
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -66,6 +71,40 @@ export function TransactionEntryModal({
   const isMissingAccounts = accounts.length === 0
   const isBlockedByCategories = needsCategory && availableCategories.length === 0
 
+  const handleReceiptSelected = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+
+    if (!file) return
+
+    setScanError('')
+    setScanMessage('')
+    setIsScanning(true)
+
+    try {
+      const scanned = await scanTransactionReceipt(file)
+      const nextType = ['EXPENSE', 'INCOME', 'DEPOSIT'].includes(scanned.type)
+        ? scanned.type
+        : 'EXPENSE'
+
+      setValue('entry_type', nextType)
+      if (scanned.amount) setValue('amount', scanned.amount, { shouldValidate: true })
+      if (scanned.transaction_date) setValue('transaction_date', scanned.transaction_date)
+      if (scanned.merchant || scanned.note) {
+        setValue('note', [scanned.merchant, scanned.note].filter(Boolean).join(' — '))
+      }
+
+      const confidence = Math.round(Number(scanned.confidence || 0) * 100)
+      setScanMessage(
+        `Receipt scanned${confidence ? ` (${confidence}% confidence)` : ''}. Please review every field before saving.`,
+      )
+    } catch (error) {
+      setScanError(error.message || 'Unable to scan this receipt.')
+    } finally {
+      setIsScanning(false)
+    }
+  }
+
   useEffect(() => {
     if (!showsCategory) {
       resetField('category_id', { defaultValue: '' })
@@ -96,6 +135,25 @@ export function TransactionEntryModal({
           </div>
           <div className="flex gap-2">
             {!isEditing ? (
+              <>
+                <input
+                  ref={receiptInputRef}
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  type="file"
+                  onChange={handleReceiptSelected}
+                />
+                <button
+                  type="button"
+                  className="transaction-entry-modal__bulk-button"
+                  disabled={isScanning}
+                  onClick={() => receiptInputRef.current?.click()}
+                >
+                  {isScanning ? 'Scanning receipt...' : 'Scan receipt'}
+                </button>
+              </>
+            ) : null}
+            {!isEditing ? (
               <button type="button" className="transaction-entry-modal__bulk-button" onClick={onBulk}>
                 Bulk transaction
               </button>
@@ -107,6 +165,16 @@ export function TransactionEntryModal({
         </header>
 
         <div className="crud-modal__body">
+          {scanError ? (
+            <p className="month-balance-alert" style={{ gridColumn: '1 / -1', margin: 0 }}>
+              {scanError}
+            </p>
+          ) : null}
+          {scanMessage ? (
+            <p className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100" style={{ gridColumn: '1 / -1', margin: 0 }}>
+              {scanMessage}
+            </p>
+          ) : null}
           <div className="crud-field" style={{ gridColumn: '1 / -1' }}>
             <span>Transaction Type</span>
             <div className="grid gap-3 md:grid-cols-3">
