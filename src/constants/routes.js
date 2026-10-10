@@ -1,6 +1,7 @@
 export const APP_ROUTES = {
   fileManager: "/file-manager",
   cronReportDelivery: "/cron-report-delivery",
+  providerConfigurations: "/provider-configurations",
   accountBalance: "/admin/account/balance",
   accountHistory: "/admin/account/history",
   accounts: "/accounts",

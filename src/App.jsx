@@ -34,6 +34,7 @@ const MenuItemsPage = lazy(() => import('./features/MenuItems/page/MenuItemsPage
 const LoginPage = lazy(() => import("./features/auth/page/LoginPage"))
 const FileManagerPage = lazy(() => import('./features/FileManager/page/FileManagerPage'))
 const CronReportDeliveryPage = lazy(() => import('./features/CronReportDelivery/page/CronReportDeliveryPage'))
+const ProviderConfigurationsPage = lazy(() => import('./features/Integrations/page/ProviderConfigurationsPage'))
 
 function ProtectedRoute({ children }) {
   const {
@@ -84,6 +85,7 @@ function AppRoutes() {
         }
       >
         <Route path="/" element={<Navigate to={APP_ROUTES.dashboard} replace />} />
+        <Route path={APP_ROUTES.providerConfigurations} element={<Suspense fallback={<FullPageLoader message="Loading provider configurations..." />}><ProviderConfigurationsPage /></Suspense>} />
 
         <Route
           path={APP_ROUTES.accounts}

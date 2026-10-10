@@ -8,6 +8,7 @@ export const API_URLS = {
     show: '/offer-location',
     update: '/offer-location',
   },
+  providerConfigurations: { list: '/provider-configurations', update: '/provider-configurations' },
   auth: {
     login: "/auth/login",
   },

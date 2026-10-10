@@ -1,5 +1,7 @@
 import { BellRing, CalendarDays, LocateFixed, Mail, Play, RefreshCcw, Save, Send, Settings2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { APP_ROUTES } from '../../../constants/routes'
 import { useToast } from '../../../components/common/Toaster'
 import { getCronReportDeliverySettings, saveOfferLocation, updateCronReportDeliverySettings } from '../service/cronReportDeliveryService'
 import { runCronReportJob } from '../service/cronReportJobService'
@@ -12,6 +14,7 @@ const monthStart = today.slice(0, 8) + "01"
 
 export default function CronReportDeliveryPage() {
   const toast = useToast()
+  const navigate = useNavigate()
   const [settings, setSettings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -100,6 +103,7 @@ export default function CronReportDeliveryPage() {
             <p className="routes-page__subtitle">Set delivery channels for each scheduled report, or run a report on demand for a selected period.</p>
           </div>
           <div className="cron-delivery__page-actions">
+            <button type="button" className="cron-delivery__secondary-button" onClick={() => navigate(APP_ROUTES.providerConfigurations)}><Settings2 size={15} /> Provider profiles</button>
             <button type="button" className="cron-delivery__secondary-button" onClick={useCurrentLocation} disabled={isSavingLocation}><LocateFixed size={15} /> {isSavingLocation ? 'Saving location...' : 'Use my location for offers'}</button>
             <button type="button" className="cron-delivery__secondary-button" onClick={() => void load()} disabled={isLoading}><RefreshCcw size={15} /> Refresh</button>
             <button type="button" className="routes-new-button" onClick={() => void save()} disabled={isLoading || isSaving}><Save size={15} /> {isSaving ? 'Saving...' : 'Save changes'}</button>
