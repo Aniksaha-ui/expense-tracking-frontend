@@ -1,7 +1,7 @@
-import { BellRing, CalendarDays, Mail, Play, RefreshCcw, Save, Send, Settings2 } from 'lucide-react'
+import { BellRing, CalendarDays, LocateFixed, Mail, Play, RefreshCcw, Save, Send, Settings2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useToast } from '../../../components/common/Toaster'
-import { getCronReportDeliverySettings, updateCronReportDeliverySettings } from '../service/cronReportDeliveryService'
+import { getCronReportDeliverySettings, saveOfferLocation, updateCronReportDeliverySettings } from '../service/cronReportDeliveryService'
 import { runCronReportJob } from '../service/cronReportJobService'
 import '../styles/cronReportDelivery.css'
 
@@ -18,6 +18,7 @@ export default function CronReportDeliveryPage() {
   const [fromDate, setFromDate] = useState(monthStart)
   const [toDate, setToDate] = useState(today)
   const [runningJob, setRunningJob] = useState(null)
+  const [isSavingLocation, setIsSavingLocation] = useState(false)
 
   const load = async () => {
     setIsLoading(true)
@@ -67,6 +68,29 @@ export default function CronReportDeliveryPage() {
     } catch (error) { toast.error(error.message || "Unable to run the report command.") } finally { setRunningJob(null) }
   }
 
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) { toast.error('This browser does not support location access.'); return }
+
+    setIsSavingLocation(true)
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const location = await saveOfferLocation({ latitude: coords.latitude, longitude: coords.longitude })
+          toast.success(`Offer location saved. Nearby offers will use a ${location.radius_km} km radius.`)
+        } catch (error) {
+          toast.error(error.message || 'Unable to save your offer location.')
+        } finally {
+          setIsSavingLocation(false)
+        }
+      },
+      (error) => {
+        setIsSavingLocation(false)
+        toast.error(error.code === error.PERMISSION_DENIED ? 'Location permission was denied. Enable it in your browser and try again.' : 'Unable to determine your location.')
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 },
+    )
+  }
+
   return (
     <main className="routes-page cron-delivery">
       <div className="routes-page__inner cron-delivery__inner">
@@ -76,6 +100,7 @@ export default function CronReportDeliveryPage() {
             <p className="routes-page__subtitle">Set delivery channels for each scheduled report, or run a report on demand for a selected period.</p>
           </div>
           <div className="cron-delivery__page-actions">
+            <button type="button" className="cron-delivery__secondary-button" onClick={useCurrentLocation} disabled={isSavingLocation}><LocateFixed size={15} /> {isSavingLocation ? 'Saving location...' : 'Use my location for offers'}</button>
             <button type="button" className="cron-delivery__secondary-button" onClick={() => void load()} disabled={isLoading}><RefreshCcw size={15} /> Refresh</button>
             <button type="button" className="routes-new-button" onClick={() => void save()} disabled={isLoading || isSaving}><Save size={15} /> {isSaving ? 'Saving...' : 'Save changes'}</button>
           </div>

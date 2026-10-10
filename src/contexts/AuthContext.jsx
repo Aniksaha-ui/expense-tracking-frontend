@@ -8,6 +8,7 @@ import {
 } from "../services/apiClient";
 import { useToast } from "../components/common/Toaster";
 import { login as loginRequest } from "../features/auth/service/authService";
+import { saveOfferLocation } from "../features/CronReportDelivery/service/cronReportDeliveryService";
 import { getAdminMenu } from "../features/menu/service/menuService";
 import { normalizeStoredMenuState } from "../features/menu/utils/menuHelpers";
 
@@ -73,6 +74,20 @@ const getPersistedMenuState = () => {
 
 const persistAuthSession = (session) => {
   window.localStorage.setItem(APP_CONFIG.authStorageKey, JSON.stringify(session));
+};
+
+const requestOfferCoordinates = () => {
+  if (!navigator.geolocation) {
+    return Promise.resolve(null);
+  }
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve({ latitude: coords.latitude, longitude: coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 },
+    );
+  });
 };
 
 const persistMenuState = (menuState) => {
@@ -145,6 +160,9 @@ export function AuthProvider({ children }) {
   const login = useCallback(
     async (credentials) => {
       setLoginState({ status: "loading", error: null });
+      // This must happen before the login HTTP request so the browser still
+      // considers it a direct result of the Sign in button click.
+      const locationPromise = requestOfferCoordinates();
 
       try {
         const session = await loginRequest(credentials);
@@ -157,6 +175,15 @@ export function AuthProvider({ children }) {
         });
         setMenu(defaultMenuState);
         window.localStorage.removeItem(APP_CONFIG.menuStorageKey);
+        // Location access is optional: a denial must never prevent a user from signing in.
+        void locationPromise.then(async (coordinates) => {
+          if (!coordinates) return;
+          try {
+            await saveOfferLocation(coordinates);
+          } catch {
+            // A location update must not affect the login session.
+          }
+        });
         await loadMenu({ force: true });
         setLoginState({ status: "succeeded", error: null });
         return session;

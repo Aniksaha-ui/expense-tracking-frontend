@@ -4,6 +4,10 @@ export const API_URLS = {
     update: "/cron-report-delivery-settings",
     run: (jobKey) => "/cron-report-jobs/" + encodeURIComponent(jobKey) + "/run",
   },
+  offerLocation: {
+    show: '/offer-location',
+    update: '/offer-location',
+  },
   auth: {
     login: "/auth/login",
   },
