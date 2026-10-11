@@ -13,10 +13,3 @@ export const updateCronReportDeliverySettings = async (settings) =>
     }),
   )
 
-export const saveOfferLocation = async ({ latitude, longitude }) =>
-  unpack(
-    await apiRequest(API_URLS.offerLocation.update, {
-      method: 'PUT',
-      body: JSON.stringify({ latitude, longitude }),
-    }),
-  )
