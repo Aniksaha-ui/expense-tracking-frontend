@@ -48,14 +48,6 @@ const fallbackPrimaryMenuItems = [
     children: [],
   },
   {
-    id: "frontend-financial-intelligence",
-    title: "Financial Intelligence Report",
-    path: APP_ROUTES.financialIntelligence,
-    icon: "ReportManagementIcon",
-    order: 270,
-    children: [],
-  },
-  {
     id: "frontend-financial-goals",
     title: "Financial Goals",
     path: APP_ROUTES.financialGoals,
@@ -108,7 +100,9 @@ const reportChildRoutes = new Set([
 
 const findReportMenuItem = (items = []) => {
   for (const item of items) {
-    if (/report/i.test(item.title ?? "") || item.icon === "ReportManagementIcon") {
+    const title = String(item.title ?? "").trim().toLowerCase();
+
+    if (getSupportedRoute(item.path) === APP_ROUTES.reports || title === "reports") {
       return item;
     }
 
