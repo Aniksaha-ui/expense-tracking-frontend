@@ -48,6 +48,22 @@ const fallbackPrimaryMenuItems = [
     children: [],
   },
   {
+    id: "frontend-financial-intelligence",
+    title: "Financial Intelligence Report",
+    path: APP_ROUTES.financialIntelligence,
+    icon: "ReportManagementIcon",
+    order: 270,
+    children: [],
+  },
+  {
+    id: "frontend-financial-goals",
+    title: "Financial Goals",
+    path: APP_ROUTES.financialGoals,
+    icon: "MoneyIcon",
+    order: 280,
+    children: [],
+  },
+  {
     id: "frontend-file-manager",
     title: "File Manager",
     path: APP_ROUTES.fileManager,
@@ -220,6 +236,18 @@ export const normalizeStoredMenuState = (payload) => {
 export const hasChildren = (item) => Array.isArray(item?.children) && item.children.length > 0;
 
 export const getSupportedRoute = (path) => {
+  if (
+    path === APP_ROUTES.financialIntelligence ||
+    path === "/financial-intelligence" ||
+    path === "financial-intelligence"
+  ) {
+    return APP_ROUTES.financialIntelligence;
+  }
+
+  if (path === APP_ROUTES.financialGoals || path === "/financial-goals" || path === "financial-goals") {
+    return APP_ROUTES.financialGoals;
+  }
+
   if (path === APP_ROUTES.cronReportDelivery || path === "/cron-report-delivery" || path === "cron-report-delivery") {
     return APP_ROUTES.cronReportDelivery;
   }

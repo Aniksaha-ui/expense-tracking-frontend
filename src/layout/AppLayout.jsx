@@ -31,6 +31,8 @@ const pageTitles = {
   '/admin/recurring-expenses': 'Recurring Expense Management',
   '/recurring-expenses': 'Recurring Expense Management',
   '/reports': 'Reports Center',
+  '/financial-intelligence': 'Financial Intelligence Report',
+  '/financial-goals': 'Financial Goals',
   '/reports/financial-overview': 'Financial Overview',
   '/reports/account-balances': 'Account Balances Report',
   '/reports/burn-rate-analysis': 'Burn Rate Analysis',

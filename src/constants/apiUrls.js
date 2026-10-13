@@ -1,4 +1,5 @@
 export const API_URLS = {
+  financialIntelligence: { dashboard: '/financial-intelligence/dashboard', forecast: '/financial-intelligence/forecast', ask: '/financial-intelligence/ask', goals: '/financial-intelligence/goals' },
   cronReportDelivery: {
     list: "/cron-report-delivery-settings",
     update: "/cron-report-delivery-settings",

@@ -35,6 +35,8 @@ const LoginPage = lazy(() => import("./features/auth/page/LoginPage"))
 const FileManagerPage = lazy(() => import('./features/FileManager/page/FileManagerPage'))
 const CronReportDeliveryPage = lazy(() => import('./features/CronReportDelivery/page/CronReportDeliveryPage'))
 const ProviderConfigurationsPage = lazy(() => import('./features/Integrations/page/ProviderConfigurationsPage'))
+const FinancialIntelligencePage = lazy(() => import('./features/FinancialIntelligence/page/FinancialIntelligencePage'))
+const FinancialGoalsPage = lazy(() => import('./features/FinancialIntelligence/page/FinancialGoalsPage'))
 
 function ProtectedRoute({ children }) {
   const {
@@ -86,6 +88,8 @@ function AppRoutes() {
       >
         <Route path="/" element={<Navigate to={APP_ROUTES.dashboard} replace />} />
         <Route path={APP_ROUTES.providerConfigurations} element={<Suspense fallback={<FullPageLoader message="Loading provider configurations..." />}><ProviderConfigurationsPage /></Suspense>} />
+        <Route path={APP_ROUTES.financialIntelligence} element={<Suspense fallback={<FullPageLoader message="Loading financial intelligence..." />}><FinancialIntelligencePage /></Suspense>} />
+        <Route path={APP_ROUTES.financialGoals} element={<Suspense fallback={<FullPageLoader message="Loading financial goals..." />}><FinancialGoalsPage /></Suspense>} />
 
         <Route
           path={APP_ROUTES.accounts}
