@@ -37,6 +37,59 @@ const findCategoryId = (categories, categoryName, type) => {
   return match ? String(match.id) : ''
 }
 
+const parseBulkTextDate = (value) => {
+  const match = String(value).trim().match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:\s*\([^)]*\))?$/)
+  if (!match) return ''
+
+  const [, day, month, year] = match
+  const parsedDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
+  const isValidDate =
+    parsedDate.getUTCFullYear() === Number(year) &&
+    parsedDate.getUTCMonth() === Number(month) - 1 &&
+    parsedDate.getUTCDate() === Number(day)
+
+  return isValidDate ? `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` : ''
+}
+
+const parseBulkTransactionsText = (value) => {
+  const entries = []
+  const invalidLines = []
+  let transactionDate = ''
+
+  String(value).split(/\r?\n/).forEach((rawLine, index) => {
+    const line = rawLine.trim()
+    if (!line) return
+
+    const parsedDate = parseBulkTextDate(line)
+    if (parsedDate) {
+      transactionDate = parsedDate
+      return
+    }
+
+    const entryMatch = line.match(/^(.+?)\s+([0-9][0-9,]*(?:\.\d{1,2})?)$/)
+    if (!entryMatch || !transactionDate) {
+      invalidLines.push(index + 1)
+      return
+    }
+
+    const [, note, rawAmount] = entryMatch
+    const amount = rawAmount.replaceAll(',', '')
+    if (Number(amount) <= 0) {
+      invalidLines.push(index + 1)
+      return
+    }
+
+    entries.push({ amount, note: note.trim(), transaction_date: transactionDate })
+  })
+
+  return { entries, invalidLines }
+}
+
+const formatPreviewDate = (value) => {
+  const [year, month, day] = String(value).split('-')
+  return year && month && day ? `${day}-${month}-${year}` : value
+}
+
 export function BulkTransactionEntryModal({
   accounts,
   categories,
@@ -49,6 +102,7 @@ export function BulkTransactionEntryModal({
   const [isScanning, setIsScanning] = useState(false)
   const [scanError, setScanError] = useState('')
   const [scanMessage, setScanMessage] = useState('')
+  const [bulkText, setBulkText] = useState('')
   const {
     control,
     formState: { errors, isSubmitting },
@@ -61,6 +115,7 @@ export function BulkTransactionEntryModal({
   })
   const { append, fields, remove, replace } = useFieldArray({ control, name: 'transactions' })
   const transactions = watch('transactions') || []
+  const textPreview = parseBulkTransactionsText(bulkText)
   const isMissingAccounts = accounts.length === 0
   const hasUnavailableExpenseCategory = transactions.some(
     (transaction) =>
@@ -108,6 +163,29 @@ export function BulkTransactionEntryModal({
     } finally {
       setIsScanning(false)
     }
+  }
+
+  const handleTextImport = () => {
+    const { entries, invalidLines } = parseBulkTransactionsText(bulkText)
+
+    setScanError('')
+    setScanMessage('')
+
+    if (!entries.length) {
+      setScanError('No transactions could be read. Add a date line (DD-MM-YYYY), then a note followed by its amount on each line.')
+      return
+    }
+
+    replace(entries.slice(0, 100).map((entry) => ({
+      ...blankTransaction(defaultEntryType),
+      ...entry,
+    })))
+
+    const skippedMessage = invalidLines.length
+      ? ` ${invalidLines.length} invalid line${invalidLines.length === 1 ? ' was' : 's were'} skipped.`
+      : ''
+    const limitMessage = entries.length > 100 ? ' Only the first 100 entries were added.' : ''
+    setScanMessage(`${Math.min(entries.length, 100)} transaction${entries.length === 1 ? '' : 's'} added from text. Choose an account and category before saving.${skippedMessage}${limitMessage}`)
   }
 
   return (
@@ -163,8 +241,43 @@ export function BulkTransactionEntryModal({
           {scanError ? <p className="month-balance-alert bulk-transaction-modal__alert">{scanError}</p> : null}
           {scanMessage ? <p className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">{scanMessage}</p> : null}
 
+          <section className="bulk-transaction-text-import" aria-label="Import transactions from text">
+            <div>
+              <strong>Paste transaction text</strong>
+              <p>Put the date on its own line as DD-MM-YYYY, then write each note followed by its amount.</p>
+            </div>
+            <textarea
+              value={bulkText}
+              onChange={(event) => setBulkText(event.target.value)}
+              placeholder={'10-10-2026\nHome to office 80\nOffice to home 80'}
+              rows="5"
+            />
+            {textPreview.entries.length ? (
+              <div className="bulk-transaction-text-preview">
+                <div className="bulk-transaction-text-preview__header">
+                  <strong>Entry preview</strong>
+                  <span>{textPreview.entries.length} {textPreview.entries.length === 1 ? 'entry' : 'entries'} found</span>
+                </div>
+                <div className="bulk-transaction-text-preview__rows">
+                  {textPreview.entries.slice(0, 10).map((entry, index) => (
+                    <div className="bulk-transaction-text-preview__row" key={`${entry.transaction_date}-${entry.note}-${index}`}>
+                      <span>{formatPreviewDate(entry.transaction_date)}</span>
+                      <span>{entry.note}</span>
+                      <strong>{entry.amount}</strong>
+                    </div>
+                  ))}
+                </div>
+                {textPreview.entries.length > 10 ? <p>Showing the first 10 entries.</p> : null}
+                {textPreview.invalidLines.length ? <p>Lines {textPreview.invalidLines.join(', ')} will be skipped.</p> : null}
+              </div>
+            ) : null}
+            <button type="button" className="bulk-transaction-text-import__button" onClick={handleTextImport}>
+              Fill transactions from text
+            </button>
+          </section>
+
           <p className="bulk-transaction-modal__hint">
-            Scan a receipt to create one editable entry for each line item, or add entries manually. All entries are saved as one batch.
+            Scan a receipt, paste transaction text, or add entries manually. All entries are saved as one batch.
           </p>
 
           <div className="bulk-transaction-modal__entries">
