@@ -19,6 +19,7 @@ export function JiraAchievementImport({ onImported }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [connection, setConnection] = useState(null);
   useEffect(() => {
     apiRequest(API_URLS.jira.get)
       .then((response) => {
@@ -70,6 +71,23 @@ export function JiraAchievementImport({ onImported }) {
       setBusy(false);
     }
   };
+  const verify = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const data = unwrapResponseData(
+        await apiRequest(API_URLS.jira.verify, { method: "POST" }),
+        "Unable to verify Jira connection.",
+      );
+      setConnection(data);
+      setMessage(`Connected as ${data.display_name}. ${data.visible_project_count} Jira projects are visible.`);
+    } catch (err) {
+      setConnection(null);
+      setError(err.message || "Unable to verify Jira connection.");
+    } finally {
+      setBusy(false);
+    }
+  };
   const importPreview = async () => {
     if (!preview.length) return;
     setBusy(true);
@@ -88,6 +106,11 @@ export function JiraAchievementImport({ onImported }) {
       setBusy(false);
     }
   };
+  const syncGenerate = async () => {
+    setBusy(true); setError("");
+    try { const data = unwrapResponseData(await apiRequest(API_URLS.jiraGenerated.sync, { method: "POST", body: JSON.stringify({ start_date: startDate, end_date: endDate }) }), "Unable to synchronize Jira work."); setPreview(data?.achievements ?? []); setMessage(`${data?.issues_synced ?? 0} Jira issues synchronized and ${data?.achievements?.length ?? 0} drafts created.`); }
+    catch (err) { setError(err.message || "Unable to synchronize Jira work."); } finally { setBusy(false); }
+  };
   return (
     <section className="rounded-2xl border border-sky-400/20 bg-sky-500/[.05] p-5 sm:p-6">
       <div className="flex gap-3">
@@ -102,8 +125,8 @@ export function JiraAchievementImport({ onImported }) {
             Turn Jira work into achievement drafts
           </h2>
           <p className="mt-1 text-sm text-slate-400">
-            Fetch every Jira issue created or updated in a selected date range,
-            without filtering by status.
+            Fetch only Jira issues assigned to your connected Atlassian account
+            in the selected date range, without filtering by status.
           </p>
         </div>
       </div>
@@ -157,6 +180,14 @@ export function JiraAchievementImport({ onImported }) {
         </button>
         <button
           type="button"
+          disabled={busy}
+          onClick={() => void verify()}
+          className="rounded-xl border border-emerald-300/30 px-4 py-3 text-sm font-semibold text-emerald-100 disabled:opacity-50"
+        >
+          Verify Jira
+        </button>
+        <button
+          type="button"
           disabled={busy || !startDate || !endDate}
           onClick={() => void fetchPreview()}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
@@ -164,6 +195,7 @@ export function JiraAchievementImport({ onImported }) {
           <CloudDownload size={17} />
           {busy ? "Working…" : "Fetch & analyse"}
         </button>
+        <button type="button" disabled={busy || !startDate || !endDate} onClick={() => void syncGenerate()} className="rounded-xl bg-indigo-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">Sync & save drafts</button>
       </div>
       {error && (
         <p className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
@@ -173,6 +205,11 @@ export function JiraAchievementImport({ onImported }) {
       {message && (
         <p className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
           {message}
+        </p>
+      )}
+      {connection && (
+        <p className="mt-2 text-xs text-sky-200">
+          Visible projects: {connection.projects?.map((project) => project.key).filter(Boolean).join(", ") || "None"}
         </p>
       )}
       {preview.length > 0 && (
