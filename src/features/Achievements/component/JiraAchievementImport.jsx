@@ -1,17 +1,223 @@
-import { CheckCircle2, CloudDownload, Link2, LoaderCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { API_URLS } from '../../../constants/apiUrls'
-import { apiRequest } from '../../../services/apiClient'
-import { unwrapResponseData } from '../../../services/resourceApi'
+import { CheckCircle2, CloudDownload, Link2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { API_URLS } from "../../../constants/apiUrls";
+import { apiRequest } from "../../../services/apiClient";
+import { unwrapResponseData } from "../../../services/resourceApi";
+
+const today = () => new Date().toISOString().slice(0, 10);
 
 export function JiraAchievementImport({ onImported }) {
-  const [form, setForm] = useState({ base_url: '', email: '', api_token: '', jql: '' })
-  const [month, setMonth] = useState(new Date().getMonth() + 1); const [year, setYear] = useState(new Date().getFullYear())
-  const [preview, setPreview] = useState([]); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
-  useEffect(() => { apiRequest(API_URLS.jira.get).then((response) => { const data = unwrapResponseData(response); if (data?.configured) setForm((current) => ({ ...current, base_url: data.base_url ?? '', email: data.email ?? '', jql: data.jql ?? '' })) }).catch(() => {}) }, [])
-  const save = async () => { setBusy(true); setError(''); try { await apiRequest(API_URLS.jira.save, { method: 'PUT', body: JSON.stringify(form) }); setMessage('Jira connection saved. Your API token is encrypted and never shown again.'); setForm((current) => ({ ...current, api_token: '' })) } catch (err) { setError(err.message || 'Unable to save Jira connection.') } finally { setBusy(false) } }
-  const fetchPreview = async () => { setBusy(true); setError(''); try { const data = unwrapResponseData(await apiRequest(API_URLS.jira.preview, { method: 'POST', body: JSON.stringify({ year, month }) }), 'Unable to fetch Jira issues.'); setPreview(data?.achievements ?? []); setMessage(`${data?.achievements?.length ?? 0} completed Jira issues found.`) } catch (err) { setError(err.message || 'Unable to fetch Jira issues.') } finally { setBusy(false) } }
-  const importPreview = async () => { if (!preview.length) return; setBusy(true); setError(''); try { await apiRequest(API_URLS.achievements.bulk, { method: 'POST', body: JSON.stringify({ achievements: preview }) }); setMessage(`${preview.length} Jira achievements added.`); setPreview([]); await onImported() } catch (err) { setError(err.message || 'Unable to add Jira achievements.') } finally { setBusy(false) } }
-  return <section className="rounded-2xl border border-sky-400/20 bg-sky-500/[.05] p-5 sm:p-6"><div className="flex gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-400/15 text-sky-200"><Link2 size={19} /></span><div><p className="text-xs font-bold uppercase tracking-[.15em] text-sky-300">Jira + OpenAI import</p><h2 className="mt-1 text-lg font-semibold text-white">Turn completed tasks into a monthly achievement</h2><p className="mt-1 text-sm text-slate-400">Fetch all completed Jira tasks and subtasks for a month, then have OpenAI produce a factual, editable achievement preview before saving.</p></div></div><div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4"><Input label="Jira site URL" value={form.base_url} placeholder="https://company.atlassian.net" onChange={(value) => setForm({ ...form, base_url: value })} /><Input label="Atlassian email" value={form.email} placeholder="you@company.com" onChange={(value) => setForm({ ...form, email: value })} /><Input label="API token" type="password" value={form.api_token} placeholder="Paste token to connect or replace" onChange={(value) => setForm({ ...form, api_token: value })} /><Input label="Optional JQL filter" value={form.jql} placeholder="project in (APP, WEB)" onChange={(value) => setForm({ ...form, jql: value })} /></div><div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"><Input label="Year" type="number" value={year} onChange={(value) => setYear(value)} /><label className="grid gap-1.5 text-sm font-medium text-slate-300"><span>Month</span><select className="goal-input" value={month} onChange={(event) => setMonth(Number(event.target.value))}>{Array.from({ length: 12 }, (_, index) => <option key={index} value={index + 1}>{new Date(2026, index, 1).toLocaleString('en', { month: 'long' })}</option>)}</select></label><button type="button" disabled={busy} onClick={() => void save()} className="rounded-xl border border-sky-300/30 px-4 py-3 text-sm font-semibold text-sky-100 disabled:opacity-50">Save connection</button><button type="button" disabled={busy} onClick={() => void fetchPreview()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"><CloudDownload size={17} />{busy ? 'Working…' : 'Fetch & analyse'}</button></div>{error && <p className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">{error}</p>}{message && <p className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">{message}</p>}{preview.length > 0 && <div className="mt-4 rounded-xl border border-white/10 bg-black/10 p-4"><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p className="font-semibold text-white">AI-generated achievement preview</p><button type="button" disabled={busy} onClick={() => void importPreview()} className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"><CheckCircle2 size={16} />Add to achievements</button></div>{preview.map((item) => <div key={item.source_key} className="mt-3"><p className="font-medium text-white">{item.title}</p><p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-300">{item.description}</p><p className="mt-2 text-xs text-sky-300">Source: {item.source_key}</p></div>)}</div>}</section>
+  const [form, setForm] = useState({
+    base_url: "",
+    email: "",
+    api_token: "",
+    jql: "",
+  });
+  const [startDate, setStartDate] = useState(`${today().slice(0, 8)}01`);
+  const [endDate, setEndDate] = useState(today());
+  const [preview, setPreview] = useState([]);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    apiRequest(API_URLS.jira.get)
+      .then((response) => {
+        const data = unwrapResponseData(response);
+        if (data?.configured)
+          setForm((current) => ({
+            ...current,
+            base_url: data.base_url ?? "",
+            email: data.email ?? "",
+            jql: data.jql ?? "",
+          }));
+      })
+      .catch(() => {});
+  }, []);
+  const save = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await apiRequest(API_URLS.jira.save, {
+        method: "PUT",
+        body: JSON.stringify(form),
+      });
+      setMessage("Jira connection saved. Your API token is encrypted.");
+      setForm((current) => ({ ...current, api_token: "" }));
+    } catch (err) {
+      setError(err.message || "Unable to save Jira connection.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const fetchPreview = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const data = unwrapResponseData(
+        await apiRequest(API_URLS.jira.preview, {
+          method: "POST",
+          body: JSON.stringify({ start_date: startDate, end_date: endDate }),
+        }),
+        "Unable to fetch Jira issues.",
+      );
+      setPreview(data?.achievements ?? []);
+      setMessage(
+        `${data?.achievements?.length ?? 0} AI achievement drafts generated.`,
+      );
+    } catch (err) {
+      setError(err.message || "Unable to fetch Jira issues.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const importPreview = async () => {
+    if (!preview.length) return;
+    setBusy(true);
+    setError("");
+    try {
+      await apiRequest(API_URLS.achievements.bulk, {
+        method: "POST",
+        body: JSON.stringify({ achievements: preview }),
+      });
+      setMessage(`${preview.length} Jira achievements added.`);
+      setPreview([]);
+      await onImported();
+    } catch (err) {
+      setError(err.message || "Unable to add Jira achievements.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="rounded-2xl border border-sky-400/20 bg-sky-500/[.05] p-5 sm:p-6">
+      <div className="flex gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-400/15 text-sky-200">
+          <Link2 size={19} />
+        </span>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[.15em] text-sky-300">
+            Jira + OpenAI import
+          </p>
+          <h2 className="mt-1 text-lg font-semibold text-white">
+            Turn Jira work into achievement drafts
+          </h2>
+          <p className="mt-1 text-sm text-slate-400">
+            Fetch every Jira issue created or updated in a selected date range,
+            without filtering by status.
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <Input
+          label="Jira site URL"
+          value={form.base_url}
+          placeholder="https://company.atlassian.net"
+          onChange={(value) => setForm({ ...form, base_url: value })}
+        />
+        <Input
+          label="Atlassian email"
+          value={form.email}
+          placeholder="you@company.com"
+          onChange={(value) => setForm({ ...form, email: value })}
+        />
+        <Input
+          label="API token"
+          type="password"
+          value={form.api_token}
+          placeholder="Paste token to connect or replace"
+          onChange={(value) => setForm({ ...form, api_token: value })}
+        />
+        <Input
+          label="Optional JQL filter"
+          value={form.jql}
+          placeholder="project in (APP, WEB)"
+          onChange={(value) => setForm({ ...form, jql: value })}
+        />
+      </div>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <Input
+          label="Start date"
+          type="date"
+          value={startDate}
+          onChange={setStartDate}
+        />
+        <Input
+          label="End date"
+          type="date"
+          value={endDate}
+          onChange={setEndDate}
+        />
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void save()}
+          className="rounded-xl border border-sky-300/30 px-4 py-3 text-sm font-semibold text-sky-100 disabled:opacity-50"
+        >
+          Save connection
+        </button>
+        <button
+          type="button"
+          disabled={busy || !startDate || !endDate}
+          onClick={() => void fetchPreview()}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          <CloudDownload size={17} />
+          {busy ? "Working…" : "Fetch & analyse"}
+        </button>
+      </div>
+      {error && (
+        <p className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+          {error}
+        </p>
+      )}
+      {message && (
+        <p className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+          {message}
+        </p>
+      )}
+      {preview.length > 0 && (
+        <div className="mt-4 rounded-xl border border-white/10 bg-black/10 p-4">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <p className="font-semibold text-white">
+              AI-generated achievement preview
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void importPreview()}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"
+            >
+              <CheckCircle2 size={16} />
+              Add to achievements
+            </button>
+          </div>
+          {preview.map((item) => (
+            <div key={item.source_key} className="mt-3">
+              <p className="font-medium text-white">{item.title}</p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-300">
+                {item.description}
+              </p>
+              <p className="mt-2 text-xs text-sky-300">
+                Source: {item.source_key}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
-function Input({ label, value, onChange, type = 'text', placeholder = '' }) { return <label className="grid gap-1.5 text-sm font-medium text-slate-300"><span>{label}</span><input type={type} value={value} placeholder={placeholder} className="goal-input" onChange={(event) => onChange(event.target.value)} /></label> }
+function Input({ label, value, onChange, type = "text", placeholder = "" }) {
+  return (
+    <label className="grid gap-1.5 text-sm font-medium text-slate-300">
+      <span>{label}</span>
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        className="goal-input"
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
+}
