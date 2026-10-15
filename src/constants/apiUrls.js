@@ -1,4 +1,5 @@
 export const API_URLS = {
+  budgets: { list: '/budgets', create: '/budgets', update: (budgetId) => `/budgets/${budgetId}`, remove: (budgetId) => `/budgets/${budgetId}` },
   financialIntelligence: { dashboard: '/financial-intelligence/dashboard', forecast: '/financial-intelligence/forecast', ask: '/financial-intelligence/ask', goals: '/financial-intelligence/goals' },
   cronReportDelivery: {
     list: "/cron-report-delivery-settings",

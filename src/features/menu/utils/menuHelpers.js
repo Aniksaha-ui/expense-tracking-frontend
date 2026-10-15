@@ -56,6 +56,14 @@ const fallbackPrimaryMenuItems = [
     children: [],
   },
   {
+    id: "frontend-budgets",
+    title: "Smart Budgets",
+    path: APP_ROUTES.budgets,
+    icon: "MoneyIcon",
+    order: 275,
+    children: [],
+  },
+  {
     id: "frontend-file-manager",
     title: "File Manager",
     path: APP_ROUTES.fileManager,
@@ -240,6 +248,10 @@ export const getSupportedRoute = (path) => {
 
   if (path === APP_ROUTES.financialGoals || path === "/financial-goals" || path === "financial-goals") {
     return APP_ROUTES.financialGoals;
+  }
+
+  if (path === APP_ROUTES.budgets || path === "/budgets" || path === "budgets") {
+    return APP_ROUTES.budgets;
   }
 
   if (path === APP_ROUTES.cronReportDelivery || path === "/cron-report-delivery" || path === "cron-report-delivery") {

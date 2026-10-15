@@ -2,6 +2,7 @@ export const APP_ROUTES = {
   fileManager: "/file-manager",
   financialIntelligence: "/financial-intelligence",
   financialGoals: "/financial-goals",
+  budgets: "/budgets",
   cronReportDelivery: "/cron-report-delivery",
   providerConfigurations: "/provider-configurations",
   accountBalance: "/admin/account/balance",
