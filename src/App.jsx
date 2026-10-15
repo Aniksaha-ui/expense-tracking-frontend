@@ -38,6 +38,7 @@ const ProviderConfigurationsPage = lazy(() => import('./features/Integrations/pa
 const FinancialIntelligencePage = lazy(() => import('./features/FinancialIntelligence/page/FinancialIntelligencePage'))
 const FinancialGoalsPage = lazy(() => import('./features/FinancialIntelligence/page/FinancialGoalsPage'))
 const BudgetsPage = lazy(() => import('./features/Budgets/page/BudgetsPage'))
+const AchievementsPage = lazy(() => import('./features/Achievements/page/AchievementsPage'))
 
 function ProtectedRoute({ children }) {
   const {
@@ -92,6 +93,7 @@ function AppRoutes() {
         <Route path={APP_ROUTES.financialIntelligence} element={<Suspense fallback={<FullPageLoader message="Loading financial intelligence..." />}><FinancialIntelligencePage /></Suspense>} />
         <Route path={APP_ROUTES.financialGoals} element={<Suspense fallback={<FullPageLoader message="Loading financial goals..." />}><FinancialGoalsPage /></Suspense>} />
         <Route path={APP_ROUTES.budgets} element={<Suspense fallback={<FullPageLoader message="Loading budgets..." />}><BudgetsPage /></Suspense>} />
+        <Route path={APP_ROUTES.achievements} element={<Suspense fallback={<FullPageLoader message="Loading achievements..." />}><AchievementsPage /></Suspense>} />
 
         <Route
           path={APP_ROUTES.accounts}

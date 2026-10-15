@@ -34,6 +34,7 @@ const pageTitles = {
   '/financial-intelligence': 'Financial Intelligence Report',
   '/financial-goals': 'Financial Goals',
   '/budgets': 'Smart Budgets',
+  '/achievements': 'Achievements',
   '/reports/financial-overview': 'Financial Overview',
   '/reports/account-balances': 'Account Balances Report',
   '/reports/burn-rate-analysis': 'Burn Rate Analysis',

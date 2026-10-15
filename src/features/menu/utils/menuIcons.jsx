@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Award,
   Bus,
   CalendarCheck,
   CircleDollarSign,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 
 const iconMap = {
+  AchievementIcon: Award,
   CategoryManagementIcon: Tags,
   ComplaintIcon: FileText,
   DashboardIcon: LayoutDashboard,

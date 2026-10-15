@@ -1,4 +1,5 @@
 export const APP_ROUTES = {
+  achievements: "/achievements",
   fileManager: "/file-manager",
   financialIntelligence: "/financial-intelligence",
   financialGoals: "/financial-goals",

@@ -1,4 +1,6 @@
 export const API_URLS = {
+  achievements: { list: '/achievements', create: '/achievements', bulk: '/achievements/bulk', update: (achievementId) => `/achievements/${achievementId}`, remove: (achievementId) => `/achievements/${achievementId}` },
+  jira: { get: '/jira-achievements', save: '/jira-achievements', preview: '/jira-achievements/preview' },
   budgets: { list: '/budgets', create: '/budgets', update: (budgetId) => `/budgets/${budgetId}`, remove: (budgetId) => `/budgets/${budgetId}` },
   financialIntelligence: { dashboard: '/financial-intelligence/dashboard', forecast: '/financial-intelligence/forecast', ask: '/financial-intelligence/ask', goals: '/financial-intelligence/goals' },
   cronReportDelivery: {
