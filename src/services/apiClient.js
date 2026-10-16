@@ -35,7 +35,11 @@ const getAuthToken = () => {
   }
 };
 
-const parseResponseBody = async (response) => {
+const parseResponseBody = async (response, responseType) => {
+  if (responseType === "blob") {
+    return response.blob();
+  }
+
   const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.includes("application/json")) {
@@ -91,7 +95,7 @@ export const apiRequest = async (path, options = {}) => {
     ...options,
     headers,
   });
-  const data = await parseResponseBody(response);
+  const data = await parseResponseBody(response, response.ok ? options.responseType : undefined);
   const isLoginRequest = path.endsWith("/login");
   const hasSession = Boolean(window.localStorage.getItem(APP_CONFIG.authStorageKey));
 

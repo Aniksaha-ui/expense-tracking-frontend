@@ -125,8 +125,9 @@ export function JiraAchievementImport({ onImported }) {
             Turn Jira work into achievement drafts
           </h2>
           <p className="mt-1 text-sm text-slate-400">
-            Fetch only Jira issues assigned to your connected Atlassian account
-            in the selected date range, without filtering by status.
+            Fetch only completed Jira issues assigned to your connected Atlassian
+            account in the selected date range. Related completed work is combined
+            into one OpenAI-written achievement draft.
           </p>
         </div>
       </div>

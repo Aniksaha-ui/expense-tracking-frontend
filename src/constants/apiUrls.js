@@ -1,5 +1,5 @@
 export const API_URLS = {
-  achievements: { list: '/achievements', create: '/achievements', bulk: '/achievements/bulk', update: (achievementId) => `/achievements/${achievementId}`, remove: (achievementId) => `/achievements/${achievementId}` },
+  achievements: { list: '/achievements', stats: '/achievements/stats', export: '/achievements/export', create: '/achievements', bulk: '/achievements/bulk', update: (achievementId) => `/achievements/${achievementId}`, remove: (achievementId) => `/achievements/${achievementId}` },
   jira: { get: '/jira-achievements', save: '/jira-achievements', verify: '/jira-achievements/verify', preview: '/jira-achievements/preview' },
   jiraGenerated: { list: '/jira-achievements/generated', sync: '/jira-achievements/sync-generate', update: (id) => `/jira-achievements/generated/${id}`, remove: (id) => `/jira-achievements/generated/${id}` },
   budgets: { list: '/budgets', create: '/budgets', update: (budgetId) => `/budgets/${budgetId}`, remove: (budgetId) => `/budgets/${budgetId}` },
