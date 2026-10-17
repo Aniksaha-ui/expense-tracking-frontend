@@ -15,6 +15,12 @@ export const accountFieldRules = {
     },
     required: 'Account name is required.',
   },
+  low_balance_threshold: {
+    pattern: {
+      message: 'Low balance alert must be a valid amount with up to 2 decimals.',
+      value: /^\d+(\.\d{1,2})?$/,
+    },
+  },
   opening_balance: {
     pattern: {
       message: 'Opening balance must be a valid amount with up to 2 decimals.',

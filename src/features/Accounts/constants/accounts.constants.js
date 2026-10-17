@@ -59,7 +59,15 @@ export const accountFields = [
     type: 'number',
     rules: accountFieldRules.opening_balance,
   },
-  { name: 'low_balance_threshold', label: 'Low Balance Alert', min: '0', placeholder: 'Optional threshold', step: '0.01', type: 'number' },
+  {
+    name: 'low_balance_threshold',
+    label: 'Low Balance Alert Threshold',
+    min: '0',
+    placeholder: 'Optional threshold',
+    step: '0.01',
+    type: 'number',
+    rules: accountFieldRules.low_balance_threshold,
+  },
   {
     createOnly: true,
     name: 'opening_balance_date',

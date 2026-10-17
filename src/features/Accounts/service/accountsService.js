@@ -122,6 +122,7 @@ export const buildAccountFormState = (item = {}) => ({
   id: item.id,
   institution_name: item.institution_name ?? '',
   is_active: toBoolean(item.is_active) ? '1' : '0',
+  low_balance_threshold: item.low_balance_threshold ?? '',
   name: item.name ?? '',
   type: String(item.type ?? 'BANK')
     .trim()
