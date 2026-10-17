@@ -1,4 +1,6 @@
 export const APP_ROUTES = {
+  notifications: "/notifications",
+  bills: "/bills",
   achievements: "/achievements",
   fileManager: "/file-manager",
   financialIntelligence: "/financial-intelligence",

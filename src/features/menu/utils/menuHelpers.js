@@ -56,6 +56,14 @@ const fallbackPrimaryMenuItems = [
     children: [],
   },
   {
+    id: "frontend-financial-intelligence",
+    title: "Financial Intelligence",
+    path: APP_ROUTES.financialIntelligence,
+    icon: "ReportManagementIcon",
+    order: 270,
+    children: [],
+  },
+  {
     id: "frontend-budgets",
     title: "Smart Budgets",
     path: APP_ROUTES.budgets,
@@ -85,6 +93,14 @@ const fallbackPrimaryMenuItems = [
     path: APP_ROUTES.recurringExpenses,
     icon: "RecurringExpenseIcon",
     order: 250,
+    children: [],
+  },
+  {
+    id: "frontend-bills",
+    title: "Bills & Subscriptions",
+    path: APP_ROUTES.bills,
+    icon: "RecurringExpenseIcon",
+    order: 255,
     children: [],
   },
 ];
@@ -246,6 +262,13 @@ export const normalizeStoredMenuState = (payload) => {
 export const hasChildren = (item) => Array.isArray(item?.children) && item.children.length > 0;
 
 export const getSupportedRoute = (path) => {
+  if (path === APP_ROUTES.bills || path === "/bills" || path === "bills") {
+    return APP_ROUTES.bills;
+  }
+  if (path === APP_ROUTES.notifications || path === "/notifications" || path === "notifications") {
+    return APP_ROUTES.notifications;
+  }
+
   if (
     path === APP_ROUTES.financialIntelligence ||
     path === "/financial-intelligence" ||

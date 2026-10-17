@@ -59,6 +59,7 @@ export const accountFields = [
     type: 'number',
     rules: accountFieldRules.opening_balance,
   },
+  { name: 'low_balance_threshold', label: 'Low Balance Alert', min: '0', placeholder: 'Optional threshold', step: '0.01', type: 'number' },
   {
     createOnly: true,
     name: 'opening_balance_date',
@@ -83,6 +84,7 @@ export const toAccountPayload = (values, editingItem) => {
       .toUpperCase(),
     institution_name: String(values.institution_name ?? '').trim() || null,
     is_active: values.is_active === '1' || values.is_active === true,
+    low_balance_threshold: String(values.low_balance_threshold ?? '').trim() || null,
   }
 
   if (!editingItem) {

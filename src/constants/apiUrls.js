@@ -1,9 +1,11 @@
 export const API_URLS = {
+  notifications: { list: '/notifications', unreadCount: '/notifications/unread-count', read: (id) => `/notifications/${id}/read`, readAll: '/notifications/read-all', remove: (id) => `/notifications/${id}`, preferences: '/notification-preferences' },
   achievements: { list: '/achievements', stats: '/achievements/stats', export: '/achievements/export', create: '/achievements', bulk: '/achievements/bulk', update: (achievementId) => `/achievements/${achievementId}`, remove: (achievementId) => `/achievements/${achievementId}` },
   jira: { get: '/jira-achievements', save: '/jira-achievements', verify: '/jira-achievements/verify', preview: '/jira-achievements/preview' },
   jiraGenerated: { list: '/jira-achievements/generated', sync: '/jira-achievements/sync-generate', update: (id) => `/jira-achievements/generated/${id}`, remove: (id) => `/jira-achievements/generated/${id}` },
   budgets: { list: '/budgets', create: '/budgets', update: (budgetId) => `/budgets/${budgetId}`, remove: (budgetId) => `/budgets/${budgetId}` },
-  financialIntelligence: { dashboard: '/financial-intelligence/dashboard', forecast: '/financial-intelligence/forecast', ask: '/financial-intelligence/ask', goals: '/financial-intelligence/goals' },
+  financialIntelligence: { dashboard: '/financial-intelligence/dashboard', forecast: '/financial-intelligence/forecast', ask: '/financial-intelligence/ask', goals: '/financial-intelligence/goals', anomalies: '/financial-anomalies' },
+  bills: { list: '/bills', create: '/bills', update: (id) => `/bills/${id}`, remove: (id) => `/bills/${id}`, markPaid: (id) => `/bills/${id}/paid` },
   cronReportDelivery: {
     list: "/cron-report-delivery-settings",
     update: "/cron-report-delivery-settings",

@@ -113,5 +113,9 @@ export const apiRequest = async (path, options = {}) => {
     throw new Error(message);
   }
 
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(String(options.method || "GET").toUpperCase()) && !path.includes("/notifications")) {
+    window.dispatchEvent(new Event("expense-tracker-notification-created"));
+  }
+
   return data;
 };

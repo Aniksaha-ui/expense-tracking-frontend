@@ -1,10 +1,16 @@
 import { Bell, ChevronDown, LogOut, Menu, PanelLeft, Search, Sun } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useAuthContext } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { API_URLS } from '../constants/apiUrls'
+import { apiRequest } from '../services/apiClient'
+import { unwrapResponseData } from '../services/resourceApi'
 
 export function Navbar({ isSidebarCollapsed, title, onMenuClick }) {
   const { auth, sessionMessage, clearSessionMessage, logout, logoutState } = useAuthContext()
+  const navigate = useNavigate()
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const profileMenuRef = useRef(null)
   const userInitial = auth.user?.name?.charAt(0)?.toUpperCase() || auth.user?.email?.charAt(0)?.toUpperCase() || 'A'
   const userName = auth.user?.name ?? 'admin'
@@ -22,6 +28,19 @@ export function Navbar({ isSidebarCollapsed, title, onMenuClick }) {
 
     return () => {
       window.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [])
+
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try { setUnreadCount(Number(unwrapResponseData(await apiRequest(API_URLS.notifications.unreadCount), 'Unable to load notifications.').count) || 0) } catch { setUnreadCount(0) }
+    }
+    void loadUnreadCount()
+    const intervalId = window.setInterval(() => void loadUnreadCount(), 60000)
+    window.addEventListener('expense-tracker-notification-created', loadUnreadCount)
+    return () => {
+      window.clearInterval(intervalId)
+      window.removeEventListener('expense-tracker-notification-created', loadUnreadCount)
     }
   }, [])
 
@@ -77,8 +96,9 @@ export function Navbar({ isSidebarCollapsed, title, onMenuClick }) {
           <Sun size={18} />
         </button>
 
-        <button className="rounded-lg p-2 text-[#969baa] hover:bg-[#211c1f] hover:text-white" aria-label="Notifications">
+        <button type="button" onClick={() => navigate('/notifications')} className="relative rounded-lg p-2 text-[#969baa] hover:bg-[#211c1f] hover:text-white" aria-label={`${unreadCount} unread notifications`} title="Notifications">
           <Bell size={18} />
+          {unreadCount > 0 ? <span className="absolute -right-1 -top-1 grid min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-4 text-white">{unreadCount > 99 ? '99+' : unreadCount}</span> : null}
         </button>
 
         <div className="relative" ref={profileMenuRef}>

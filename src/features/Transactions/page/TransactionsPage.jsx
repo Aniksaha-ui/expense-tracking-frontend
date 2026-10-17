@@ -290,7 +290,7 @@ export default function TransactionsPage() {
                   title={
                     isEditable
                       ? 'Edit transaction'
-                      : 'Only manual expense, income, and deposit entries can be edited here.'
+                      : 'Only expense, income, and deposit entries can be edited here.'
                   }
                   onClick={() => openEditModal(item)}
                 >

@@ -2,6 +2,7 @@ import { ChevronRight, GalleryVerticalEnd, LogOut, RefreshCcw, X } from 'lucide-
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
+import { APP_ROUTES } from '../constants/routes'
 import { getSupportedRoute, hasChildren } from '../features/menu/utils/menuHelpers'
 import { MenuIcon } from '../features/menu/utils/menuIcons'
 
@@ -88,12 +89,22 @@ function MenuSection({ isCollapsed, items, onClose, onExpandRequest }) {
   return <>{renderItems(items)}</>
 }
 
+const requiredWorkspaceItems = [
+  { id: 'sidebar-bills', title: 'Bills & Subscriptions', path: APP_ROUTES.bills, icon: 'RecurringExpenseIcon', children: [] },
+  { id: 'sidebar-financial-intelligence', title: 'Financial Intelligence', path: APP_ROUTES.financialIntelligence, icon: 'ReportManagementIcon', children: [] },
+]
+
+const containsRoute = (items, route) => items.some((item) => getSupportedRoute(item.path) === route || containsRoute(item.children ?? [], route))
+
 export function Sidebar({ isCollapsed, isOpen, onClose, onExpand }) {
   const { auth, loadMenu, logout, logoutState, menu } = useAuthContext()
   const userInitial = auth.user?.name?.charAt(0)?.toUpperCase() || auth.user?.email?.charAt(0)?.toUpperCase() || 'A'
   const userName = auth.user?.name ?? 'admin'
   const userEmail = auth.user?.email ?? ''
   const hasMenu = menu.mainMenuItems.length > 0 || menu.bottomMenuItems.length > 0
+  const missingWorkspaceItems = requiredWorkspaceItems.filter(
+    (item) => !containsRoute([...menu.mainMenuItems, ...menu.bottomMenuItems], item.path),
+  )
   const isLoggingOut = logoutState.status === 'loading'
 
   return (
@@ -187,8 +198,26 @@ export function Sidebar({ isCollapsed, isOpen, onClose, onExpand }) {
                     />
                   </div>
                 ) : null}
+                {missingWorkspaceItems.length ? (
+                  <div className="pt-4">
+                    {isCollapsed ? null : <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#686b77]">Finance tools</p>}
+                    <MenuSection
+                      isCollapsed={isCollapsed}
+                      items={missingWorkspaceItems}
+                      onClose={onClose}
+                      onExpandRequest={onExpand}
+                    />
+                  </div>
+                ) : null}
               </>
-            ) : null}
+            ) : (
+              <MenuSection
+                isCollapsed={isCollapsed}
+                items={requiredWorkspaceItems}
+                onClose={onClose}
+                onExpandRequest={onExpand}
+              />
+            )}
           </nav>
         </div>
 
