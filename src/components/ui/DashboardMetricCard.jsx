@@ -8,13 +8,13 @@ const toneStyles = {
 
 export function DashboardMetricCard({ label, value, icon: Icon, tone = 'blue' }) {
   return (
-    <article className="flex h-[76px] items-center gap-4 rounded-lg border border-[#332d30] bg-[#231f21] px-5">
+    <article className="flex h-[76px] min-w-0 items-center gap-4 rounded-lg border border-[#332d30] bg-[#231f21] px-5">
       <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${toneStyles[tone]}`}>
         <Icon size={20} strokeWidth={2.2} />
       </span>
-      <div>
-        <p className="text-[12px] font-medium text-[#8fa0bd]">{label}</p>
-        <p className="mt-1 text-base font-bold leading-none text-white">{value}</p>
+      <div className="min-w-0">
+        <p className="truncate text-[12px] font-medium text-[#8fa0bd]">{label}</p>
+        <p className="mt-1 truncate text-base font-bold leading-none text-white">{value}</p>
       </div>
     </article>
   )

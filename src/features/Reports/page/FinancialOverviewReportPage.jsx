@@ -16,6 +16,7 @@ import { apiRequest } from '../../../services/apiClient'
 import { unwrapResponseData } from '../../../services/resourceApi'
 import { API_URLS } from '../../../constants/apiUrls'
 import AdminDataTable from '../../../components/ui/AdminDataTable'
+import { ReportsOverview } from '../component/ReportsOverview.jsx'
 
 const currency = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const dateLabel = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short' })
@@ -108,12 +109,12 @@ export default function FinancialOverviewReportPage() {
     id: row.account_name,
   })), [report.transfer_receipts_by_account])
   const metrics = [
-    { icon: Wallet, label: 'Opening Balance', tone: 'text-cyan-300', value: money(report.summary.opening_balance) },
-    { icon: Wallet, label: 'Closing Balance', tone: 'text-blue-300', value: money(report.summary.closing_balance) },
-    { icon: TrendingUp, label: 'Total Income', tone: 'text-emerald-300', value: money(report.summary.total_income) },
-    { icon: TrendingDown, label: 'Total Costing', tone: 'text-rose-300', value: money(report.summary.total_costing) },
-    { icon: Wallet, label: 'Bank-to-bank Transfers', tone: 'text-violet-300', value: money(report.summary.total_bank_transfers) },
-    { icon: CircleDollarSign, label: 'Net Income', tone: asNumber(report.summary.net_income) >= 0 ? 'text-emerald-300' : 'text-rose-300', value: money(report.summary.net_income) },
+    { icon: Wallet, label: 'Opening Balance', tone: 'cyan', value: money(report.summary.opening_balance) },
+    { icon: Wallet, label: 'Closing Balance', tone: 'blue', value: money(report.summary.closing_balance) },
+    { icon: TrendingUp, label: 'Total Income', tone: 'emerald', value: money(report.summary.total_income) },
+    { icon: TrendingDown, label: 'Total Costing', tone: 'amber', value: money(report.summary.total_costing) },
+    { icon: Wallet, label: 'Bank-to-bank Transfers', tone: 'cyan', value: money(report.summary.total_bank_transfers) },
+    { icon: CircleDollarSign, label: 'Net Income', tone: asNumber(report.summary.net_income) >= 0 ? 'emerald' : 'amber', value: money(report.summary.net_income) },
   ]
   const ledgerColumns = useMemo(() => [
     { id: 'period', label: granularity === 'monthly' ? 'Month' : 'Date', render: (row) => <span className="font-semibold text-white">{row.label}</span>, width: '15%' },
@@ -151,9 +152,11 @@ export default function FinancialOverviewReportPage() {
 
         {error ? <p className="month-balance-alert">{error}</p> : null}
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {metrics.map(({ icon: Icon, label, tone, value }) => <article key={label} className="rounded-xl border border-[#332d30] bg-[#171314] p-4"><Icon size={19} className={tone} /><p className="mt-4 text-xs uppercase tracking-[0.16em] text-[#7d8ca5]">{label}</p><p className={`mt-2 text-lg font-bold ${tone}`}>{isLoading ? 'Loading...' : value}</p></article>)}
-        </section>
+        <ReportsOverview
+          isLoading={isLoading}
+          items={metrics}
+          sectionClassName="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+        />
 
         <section className="grid gap-5 xl:grid-cols-2">
           <ChartCard title="Income vs costing" subtitle={`${granularity === 'monthly' ? 'Monthly' : 'Daily'} comparison of money earned against business and expense costs.`}>
