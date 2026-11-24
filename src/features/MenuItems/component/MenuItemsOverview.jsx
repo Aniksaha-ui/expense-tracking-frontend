@@ -30,7 +30,7 @@ export function MenuItemsOverview({ isLoading, metrics }) {
   ]
 
   return (
-    <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <section className="overview-scroll mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       {items.map((item) => (
         <DashboardMetricCard
           key={item.label}

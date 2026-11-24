@@ -2,7 +2,7 @@ import { DashboardMetricCard } from '../../../components/ui/DashboardMetricCard'
 
 export function ReportsOverview({ isLoading, items, sectionClassName = 'mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4' }) {
   return (
-    <section className={sectionClassName}>
+    <section className={`overview-scroll ${sectionClassName}`}>
       {items.map((item) => (
         <DashboardMetricCard
           key={item.label}

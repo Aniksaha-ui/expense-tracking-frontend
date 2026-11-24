@@ -49,7 +49,7 @@ export default function BudgetsPage() {
   return <section className="budget-page">
     <header className="budget-hero"><div className="budget-hero__copy"><span className="budget-eyebrow"><Wallet size={14} /> Spending control</span><h1>Make every taka count.</h1><p>Set simple category limits and see exactly how much room you have left to spend.</p></div><div className="budget-date-control"><CalendarDays size={18} /><label htmlFor="budget-date">Reviewing</label><input id="budget-date" aria-label="Budget date" type="date" value={date} onChange={(event) => setDate(event.target.value)} /><button type="button" onClick={() => void load()} aria-label="Refresh budgets"><RefreshCw size={17} /></button></div></header>
     {error && <Message tone="rose">{error}</Message>}{notice && <Message tone="emerald">{notice}</Message>}
-    <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <section className="overview-scroll mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       <DashboardMetricCard icon={Wallet} label="Total Budgets" tone="blue" value={loading ? '...' : String(budgets.length)} />
       <DashboardMetricCard icon={Wallet} label="Planned Budget" tone="cyan" value={loading ? '...' : money(totals.planned)} />
       <DashboardMetricCard icon={ArrowDownRight} label="Actual Spending" tone="amber" value={loading ? '...' : money(totals.spent)} />

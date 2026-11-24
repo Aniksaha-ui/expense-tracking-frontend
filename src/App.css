@@ -2627,6 +2627,21 @@
 }
 
 @media (max-width: 768px) {
+  .overview-scroll {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .overview-scroll > article {
+    min-width: min(260px, calc(100vw - 32px));
+    flex: 0 0 min(260px, calc(100vw - 32px));
+    scroll-snap-align: start;
+  }
+
   .routes-mobile-list {
     display: grid;
   }
